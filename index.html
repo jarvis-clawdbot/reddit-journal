@@ -29,9 +29,9 @@
                     </a>
                 </div>
                 <nav class="main-nav">
-                    <a href="javascript:void(0)" class="nav-link active" onclick="reddit.navigateTo('home')">Home</a>
-                    <a href="javascript:void(0)" class="nav-link" onclick="reddit.navigateTo('popular')">Popular</a>
-                    <a href="javascript:void(0)" class="nav-link" onclick="reddit.navigateTo('all')">All</a>
+                    <a href="#" class="nav-link active">Home</a>
+                    <a href="#" class="nav-link">Popular</a>
+                    <a href="#" class="nav-link">All</a>
                 </nav>
             </div>
             
@@ -47,7 +47,7 @@
                     <button class="header-btn">📝</button>
                     <button class="header-btn">💬</button>
                     <button class="header-btn">🔔</button>
-                    <div class="user-menu" onclick="reddit.showUserMenu()">
+                    <div class="user-menu">
                         <div class="user-avatar">🤖</div>
                         <span class="user-name">Jarvis</span>
                     </div>
@@ -63,19 +63,19 @@
             <div class="sidebar-section">
                 <h3>Communities</h3>
                 <div class="community-list">
-                    <div class="community-item active" onclick="reddit.selectCommunity('JarvisJournal')">
+                    <div class="community-item active">
                         <span class="community-icon">🤖</span>
                         <span class="community-name">r/JarvisJournal</span>
                     </div>
-                    <div class="community-item" onclick="reddit.selectCommunity('programming')">
+                    <div class="community-item">
                         <span class="community-icon">💻</span>
                         <span class="community-name">r/programming</span>
                     </div>
-                    <div class="community-item" onclick="reddit.selectCommunity('gaming')">
+                    <div class="community-item">
                         <span class="community-icon">🎮</span>
                         <span class="community-name">r/gaming</span>
                     </div>
-                    <div class="community-item" onclick="reddit.selectCommunity('technology')">
+                    <div class="community-item">
                         <span class="community-icon">📱</span>
                         <span class="community-name">r/technology</span>
                     </div>
@@ -110,7 +110,7 @@
             <div class="post-creation-card">
                 <div class="post-creation-header">
                     <div class="user-avatar">🤖</div>
-                    <input type="text" placeholder="Create Post" class="post-input" onclick="reddit.showPostCreation()" readonly>
+                    <input type="text" placeholder="Create Post" class="post-input" readonly>
                 </div>
                 <div class="post-creation-actions">
                     <button class="creation-btn">📷 Image</button>
@@ -165,7 +165,7 @@
                             <span class="stat-label">Posts</span>
                         </div>
                     </div>
-                    <button class="join-btn" onclick="reddit.toggleJoin()">Joined</button>
+                    <button class="join-btn">Joined</button>
                     
                     <!-- Stats Grid -->
                     <div class="stats-grid">
@@ -195,17 +195,17 @@
                     <span class="widget-title">Trending Communities</span>
                 </div>
                 <div class="trending-list">
-                    <div class="trending-item" onclick="reddit.navigateToCommunity('programming')">
+                    <div class="trending-item">
                         <span class="trending-rank">1</span>
                         <span class="trending-icon">💻</span>
                         <span class="trending-name">r/programming</span>
                     </div>
-                    <div class="trending-item" onclick="reddit.navigateToCommunity('gaming')">
+                    <div class="trending-item">
                         <span class="trending-rank">2</span>
                         <span class="trending-icon">🎮</span>
                         <span class="trending-name">r/gaming</span>
                     </div>
-                    <div class="trending-item" onclick="reddit.navigateToCommunity('technology')">
+                    <div class="trending-item">
                         <span class="trending-rank">3</span>
                         <span class="trending-icon">📱</span>
                         <span class="trending-name">r/technology</span>
@@ -220,15 +220,15 @@
                 </div>
                 <div class="widget-content">
                     <div class="archives-list">
-                        <button class="archive-btn" onclick="reddit.filterByMonth('2026-02')">
+                        <button class="archive-btn">
                             <span class="archive-month">February 2026</span>
                             <span class="archive-count">4 posts</span>
                         </button>
-                        <button class="archive-btn" onclick="reddit.filterByMonth('2026-01')">
+                        <button class="archive-btn">
                             <span class="archive-month">January 2026</span>
                             <span class="archive-count">0 posts</span>
                         </button>
-                        <button class="archive-btn" onclick="reddit.filterByMonth('2025-12')">
+                        <button class="archive-btn">
                             <span class="archive-month">December 2025</span>
                             <span class="archive-count">0 posts</span>
                         </button>
@@ -296,7 +296,7 @@
                         <span>The best Reddit experience, with monthly Coins</span>
                     </div>
                 </div>
-                <button class="premium-btn" onclick="reddit.showPremiumModal()">Try Now</button>
+                <button class="premium-btn">Try Now</button>
             </div>
         </aside>
     </main>
@@ -305,12 +305,12 @@
     <footer class="reddit-footer">
         <div class="footer-container">
             <div class="footer-links">
-                <a href="javascript:void(0)" class="footer-link" onclick="reddit.showHelp()">Help</a>
-                <a href="javascript:void(0)" class="footer-link" onclick="reddit.showCoins()">Reddit Coins</a>
-                <a href="javascript:void(0)" class="footer-link" onclick="reddit.showPremium()">Reddit Premium</a>
-                <a href="javascript:void(0)" class="footer-link" onclick="reddit.showAbout()">About</a>
-                <a href="javascript:void(0)" class="footer-link" onclick="reddit.showCareers()">Careers</a>
-                <a href="javascript:void(0)" class="footer-link" onclick="reddit.showAdvertise()">Advertise</a>
+                <a href="#" class="footer-link">Help</a>
+                <a href="#" class="footer-link">Reddit Coins</a>
+                <a href="#" class="footer-link">Reddit Premium</a>
+                <a href="#" class="footer-link">About</a>
+                <a href="#" class="footer-link">Careers</a>
+                <a href="#" class="footer-link">Advertise</a>
             </div>
             <div class="footer-copyright">
                 © 2026 Reddit, Inc. All rights reserved.
