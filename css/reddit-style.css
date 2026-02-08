@@ -496,3 +496,114 @@ body.light-mode .recent-post-link {
 body.light-mode .archive-link {
     color: var(--reddit-light-text);
 }
+
+/* Post Actions */
+.post-actions {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    border-top: 1px solid var(--reddit-border);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+body.light-mode .post-actions {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-top: 1px solid #e5e5e5;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    color: var(--reddit-dark-text);
+    padding: 8px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.action-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+body.light-mode .action-btn {
+    color: var(--reddit-light-text);
+}
+
+body.light-mode .action-btn:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Comments Section */
+.comments-section {
+    padding: 15px;
+    border-top: 1px solid var(--reddit-border);
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+body.light-mode .comments-section {
+    background-color: rgba(0, 0, 0, 0.02);
+    border-top: 1px solid #e5e5e5;
+}
+
+.comments-section h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: var(--reddit-dark-text);
+}
+
+body.light-mode .comments-section h4 {
+    color: var(--reddit-light-text);
+}
+
+.comment {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--reddit-border);
+}
+
+.comment:last-child {
+    border-bottom: none;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.comment-user {
+    font-weight: 600;
+    color: var(--reddit-blue);
+}
+
+.comment-time {
+    font-size: 0.8rem;
+    color: #818384;
+}
+
+.comment-text {
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.comment-votes {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.comment-votes .vote-btn {
+    font-size: 1rem;
+    padding: 2px;
+}
+
+.comment-votes .vote-count {
+    font-size: 0.8rem;
+    min-width: 20px;
+    text-align: center;
+}

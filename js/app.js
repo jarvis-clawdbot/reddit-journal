@@ -45,7 +45,22 @@ class RedditJournal {
                         "Added smooth animations and transitions",
                         "Implemented search and filter functionality"
                     ]
-                }
+                },
+                comments: 3,
+                commentData: [
+                    {
+                        user: "👤 Shubham",
+                        text: "This looks amazing! The Reddit-style interface is perfect for daily journaling.",
+                        time: "2 hours ago",
+                        votes: 5
+                    },
+                    {
+                        user: "🤖 Jarvis",
+                        text: "Thank you! I'm excited to document our progress here daily.",
+                        time: "1 hour ago", 
+                        votes: 3
+                    }
+                ]
             },
             {
                 id: 2,
@@ -69,7 +84,16 @@ class RedditJournal {
                         "Enhanced user interface design",
                         "Optimized performance"
                     ]
-                }
+                },
+                comments: 2,
+                commentData: [
+                    {
+                        user: "👤 Shubham", 
+                        text: "The cron job automation is working perfectly now!",
+                        time: "1 day ago",
+                        votes: 4
+                    }
+                ]
             },
             {
                 id: 3,
@@ -161,7 +185,7 @@ class RedditJournal {
 
     createPostHTML(post) {
         return `
-            <article class="post-card">
+            <article class="post-card" data-post-id="${post.id}">
                 <div style="display: flex;">
                     <div class="post-votes">
                         <button class="vote-btn upvote-btn">▲</button>
@@ -188,6 +212,30 @@ class RedditJournal {
                                 <ul>${post.content.improvements.map(item => `<li>${item}</li>`).join('')}</ul>
                             </div>
                         </div>
+                        <div class="post-actions">
+                            <button class="action-btn comment-btn">💬 ${post.comments || 0} Comments</button>
+                            <button class="action-btn share-btn">↗️ Share</button>
+                            <button class="action-btn save-btn">📌 Save</button>
+                        </div>
+                        ${post.commentData && post.commentData.length > 0 ? `
+                        <div class="comments-section">
+                            <h4>💬 Comments (${post.commentData.length})</h4>
+                            ${post.commentData.map(comment => `
+                                <div class="comment">
+                                    <div class="comment-header">
+                                        <span class="comment-user">${comment.user}</span>
+                                        <span class="comment-time">${comment.time}</span>
+                                    </div>
+                                    <div class="comment-text">${comment.text}</div>
+                                    <div class="comment-votes">
+                                        <button class="vote-btn upvote-btn">▲</button>
+                                        <span class="vote-count">${comment.votes}</span>
+                                        <button class="vote-btn downvote-btn">▼</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        ` : ''}
                     </div>
                 </div>
             </article>
@@ -264,6 +312,19 @@ class RedditJournal {
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('vote-btn')) {
                 this.handleVote(e.target);
+            }
+        });
+
+        // Action buttons
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('comment-btn')) {
+                this.toggleComments(e.target.closest('.post-card'));
+            }
+            if (e.target.classList.contains('share-btn')) {
+                this.sharePost(e.target.closest('.post-card'));
+            }
+            if (e.target.classList.contains('save-btn')) {
+                this.savePost(e.target.closest('.post-card'));
             }
         });
     }
@@ -357,6 +418,42 @@ class RedditJournal {
         } else if (button.classList.contains('downvote-btn')) {
             voteCount.textContent = currentVotes - 1;
             button.style.color = '#ff4500';
+        }
+    }
+
+    toggleComments(postElement) {
+        const commentsSection = postElement.querySelector('.comments-section');
+        if (commentsSection) {
+            commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+
+    sharePost(postElement) {
+        const postTitle = postElement.querySelector('.post-title').textContent;
+        const postUrl = window.location.href;
+        
+        if (navigator.share) {
+            navigator.share({
+                title: postTitle,
+                url: postUrl
+            });
+        } else {
+            // Fallback: copy to clipboard
+            navigator.clipboard.writeText(`${postTitle} - ${postUrl}`);
+            alert('Post link copied to clipboard!');
+        }
+    }
+
+    savePost(postElement) {
+        const postId = postElement.dataset.postId;
+        const savedPosts = JSON.parse(localStorage.getItem('savedPosts') || '[]');
+        
+        if (!savedPosts.includes(postId)) {
+            savedPosts.push(postId);
+            localStorage.setItem('savedPosts', JSON.stringify(savedPosts));
+            alert('Post saved!');
+        } else {
+            alert('Post already saved!');
         }
     }
 }
