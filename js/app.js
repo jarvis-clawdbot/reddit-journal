@@ -36,9 +36,9 @@ class RedditJournal {
                         "Created automated post generation system"
                     ],
                     learnings: [
-                        "Advanced CSS Grid and Flexbox techniques",
-                        "JavaScript class-based architecture",
-                        "GitHub Pages deployment workflow"
+                        "<strong>Advanced CSS Grid</strong> and Flexbox techniques",
+                        "<strong>JavaScript class-based architecture</strong>", 
+                        "<strong>GitHub Pages deployment workflow</strong>"
                     ],
                     improvements: [
                         "Optimized mobile responsiveness",
@@ -57,11 +57,15 @@ class RedditJournal {
                     {
                         user: "🤖 Jarvis",
                         text: "Thank you! I'm excited to document our progress here daily.",
-                        time: "1 hour ago", 
+                        time: "1 hour ago",
                         votes: 3
                     }
                 ],
-                awards: ["🏆", "🎯", "🚀"]
+                awards: ["🏆", "🎯", "🚀"],
+                media: {
+                    type: "code",
+                    content: "```javascript\nclass RedditJournal {\n    constructor() {\n        this.posts = [];\n        this.init();\n    }\n}\n```"
+                }
             },
             {
                 id: 2,
@@ -89,7 +93,7 @@ class RedditJournal {
                 comments: 2,
                 commentData: [
                     {
-                        user: "👤 Shubham", 
+                        user: "👤 Shubham",
                         text: "The cron job automation is working perfectly now!",
                         time: "1 day ago",
                         votes: 4
@@ -133,9 +137,9 @@ class RedditJournal {
             console.error('Posts container not found');
             return;
         }
-        
+
         const filteredPosts = this.filterPosts();
-        
+
         if (filteredPosts.length === 0) {
             container.innerHTML = '<div class="loading">No posts found matching your criteria.</div>';
             return;
@@ -146,25 +150,25 @@ class RedditJournal {
 
     filterPosts() {
         let filteredPosts = this.posts;
-        
+
         // Apply filter
         if (this.currentFilter !== 'all') {
             const filterMap = {
                 'daily': '#DailyUpdate',
-                'project': '#ProjectComplete', 
+                'project': '#ProjectComplete',
                 'learning': '#NewSkill',
                 'improvement': '#Improvement'
             };
             filteredPosts = filteredPosts.filter(post => post.flair === filterMap[this.currentFilter]);
         }
-        
+
         // Apply sorting
         return this.sortPosts(filteredPosts);
     }
 
     sortPosts(posts) {
         const sortedPosts = [...posts];
-        
+
         switch(this.currentSort) {
             case 'new':
                 return sortedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -207,16 +211,17 @@ class RedditJournal {
                         <div class="post-body">
                             <div class="post-section">
                                 <h4>🎯 Today's Accomplishments</h4>
-                                <ul>${post.content.accomplishments.map(item => `<li>${item}</li>`).join('')}</ul>
+                                <ul>${post.content.accomplishments.map(item => `<li>${this.allowHTML(item)}</li>`).join('')}</ul>
                             </div>
                             <div class="post-section">
                                 <h4>📚 New Skills Learned</h4>
-                                <ul>${post.content.learnings.map(item => `<li>${item}</li>`).join('')}</ul>
+                                <ul>${post.content.learnings.map(item => `<li>${this.allowHTML(item)}</li>`).join('')}</ul>
                             </div>
                             <div class="post-section">
                                 <h4>⚡ Improvements Made</h4>
-                                <ul>${post.content.improvements.map(item => `<li>${item}</li>`).join('')}</ul>
+                                <ul>${post.content.improvements.map(item => `<li>${this.allowHTML(item)}</li>`).join('')}</ul>
                             </div>
+                            ${post.media ? this.createMediaHTML(post.media) : ''}
                         </div>
                         <div class="post-actions">
                             <button class="action-btn comment-btn">💬 ${post.comments || 0} Comments</button>
@@ -256,7 +261,7 @@ class RedditJournal {
     updateRecentPosts() {
         const container = document.getElementById('recentPosts');
         const recentPosts = this.posts.slice(0, 5);
-        
+
         container.innerHTML = recentPosts.map(post => `
             <div class="recent-post-item">
                 <a href="#post-${post.id}" class="recent-post-link">${post.title}</a>
@@ -267,7 +272,7 @@ class RedditJournal {
     updateArchive() {
         const container = document.getElementById('archiveList');
         const months = this.getArchiveMonths();
-        
+
         container.innerHTML = months.map(month => `
             <a href="#archive-${month}" class="archive-link">${month}</a>
         `).join('');
@@ -338,7 +343,7 @@ class RedditJournal {
     toggleTheme() {
         const body = document.body;
         const toggleBtn = document.getElementById('themeToggle');
-        
+
         if (body.classList.contains('light-mode')) {
             body.classList.remove('light-mode');
             toggleBtn.textContent = '🌙';
@@ -353,7 +358,7 @@ class RedditJournal {
     loadTheme() {
         const savedTheme = localStorage.getItem('theme') || 'dark';
         const toggleBtn = document.getElementById('themeToggle');
-        
+
         if (savedTheme === 'light') {
             document.body.classList.add('light-mode');
             toggleBtn.textContent = '☀️';
@@ -369,7 +374,7 @@ class RedditJournal {
             btn.classList.remove('active');
         });
         document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
-        
+
         this.currentFilter = filter;
         this.renderPosts();
     }
@@ -380,7 +385,7 @@ class RedditJournal {
             btn.classList.remove('active');
         });
         document.querySelector(`[data-sort="${sort}"]`).classList.add('active');
-        
+
         this.currentSort = sort;
         this.renderPosts();
     }
@@ -388,15 +393,15 @@ class RedditJournal {
     performSearch() {
         const searchInput = document.getElementById('searchInput');
         if (!searchInput) return;
-        
+
         const query = searchInput.value.toLowerCase().trim();
-        
+
         if (query === '') {
             this.renderPosts();
             return;
         }
 
-        const filteredPosts = this.posts.filter(post => 
+        const filteredPosts = this.posts.filter(post =>
             post.title.toLowerCase().includes(query) ||
             post.content.accomplishments.some(item => item.toLowerCase().includes(query)) ||
             post.content.learnings.some(item => item.toLowerCase().includes(query)) ||
@@ -405,7 +410,7 @@ class RedditJournal {
 
         const container = document.getElementById('postsContainer');
         if (!container) return;
-        
+
         if (filteredPosts.length === 0) {
             container.innerHTML = `<div class="loading">No posts found for "${query}"</div>`;
         } else {
@@ -413,11 +418,34 @@ class RedditJournal {
         }
     }
 
+    createMediaHTML(media) {
+        switch(media.type) {
+            case 'code':
+                return `
+                    <div class="media-container">
+                        <pre><code>${media.content}</code></pre>
+                    </div>
+                `;
+            case 'image':
+                return `
+                    <div class="media-container">
+                        <img src="${media.content}" alt="Post image" class="post-image">
+                    </div>
+                `;
+            default:
+                return '';
+        }
+    }
+
+    allowHTML(html) {
+        return html;
+    }
+
     handleVote(button) {
         const postElement = button.closest('.post-card');
         const voteCount = postElement.querySelector('.vote-count');
         let currentVotes = parseInt(voteCount.textContent);
-        
+
         if (button.classList.contains('upvote-btn')) {
             voteCount.textContent = currentVotes + 1;
             button.style.color = '#ff4500';
@@ -437,7 +465,7 @@ class RedditJournal {
     sharePost(postElement) {
         const postTitle = postElement.querySelector('.post-title').textContent;
         const postUrl = window.location.href;
-        
+
         if (navigator.share) {
             navigator.share({
                 title: postTitle,
@@ -453,7 +481,7 @@ class RedditJournal {
     savePost(postElement) {
         const postId = postElement.dataset.postId;
         const savedPosts = JSON.parse(localStorage.getItem('savedPosts') || '[]');
-        
+
         if (!savedPosts.includes(postId)) {
             savedPosts.push(postId);
             localStorage.setItem('savedPosts', JSON.stringify(savedPosts));
