@@ -213,6 +213,47 @@ class RedditJournal {
                         console.log('⌨️ Search focused via Cmd+K');
                     }
                     break;
+                case '?':
+                    e.preventDefault();
+                    this.showShortcuts();
+                    console.log('⌨️ Shortcuts modal opened via ?');
+                    break;
+                case 'j':
+                    if (!e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                        this.navigatePosts('next');
+                    }
+                    break;
+                case 'k':
+                    if (!e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                        this.navigatePosts('prev');
+                    }
+                    break;
+                case '1':
+                    if (!e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                        this.setSort('new');
+                    }
+                    break;
+                case '2':
+                    if (!e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                        this.setSort('hot');
+                    }
+                    break;
+                case '3':
+                    if (!e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                        this.setSort('top');
+                    }
+                    break;
+                case '4':
+                    if (!e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                        this.setSort('rising');
+                    }
+                    break;
                 case 'Escape':
                     document.getElementById('searchInput').blur();
                     console.log('🚫 Search blurred via keyboard shortcut');
@@ -724,10 +765,10 @@ class RedditJournal {
         // Apply filter
         if (this.currentFilter !== 'all') {
             const filterMap = {
-                'daily': '#DailyUpdate',
-                'project': '#ProjectComplete',
-                'learning': '#NewSkill',
-                'improvement': '#Improvement'
+                'projects': '#ProjectComplete',
+                'learnings': '#NewSkill',
+                'improvements': '#Improvement',
+                'tasks': '#DailyUpdate'
             };
             filteredPosts = filteredPosts.filter(post => post.flair === filterMap[this.currentFilter]);
         }
@@ -886,6 +927,58 @@ class RedditJournal {
         
         // Update stats grid
         this.updateStatsGrid();
+        
+        // Update trophies
+        this.updateTrophies();
+    }
+
+    updateTrophies() {
+        const trophiesGrid = document.getElementById('trophiesGrid');
+        if (!trophiesGrid) return;
+        
+        const totalPosts = this.posts.length;
+        const streakDays = this.calculateCurrentStreak();
+        const totalComments = this.posts.reduce((sum, post) => sum + (post.comments || 0), 0);
+        
+        const trophies = [
+            {
+                id: 'first-post',
+                icon: '⭐',
+                name: 'First Post',
+                unlocked: totalPosts >= 1,
+                title: 'Create your first post'
+            },
+            {
+                id: 'hundred-posts',
+                icon: '🎯',
+                name: '100 Posts',
+                unlocked: totalPosts >= 100,
+                title: 'Reach 100 posts'
+            },
+            {
+                id: 'seven-day-streak',
+                icon: '🔥',
+                name: '7-Day Streak',
+                unlocked: streakDays >= 7,
+                title: 'Maintain a 7-day posting streak'
+            },
+            {
+                id: 'community-builder',
+                icon: '🤝',
+                name: '10 Comments',
+                unlocked: totalComments >= 10,
+                title: 'Receive 10 comments on your posts'
+            }
+        ];
+        
+        const trophiesHTML = trophies.map(trophy => `
+            <div class="trophy ${trophy.unlocked ? 'unlocked' : 'locked'}" title="${trophy.title}">
+                <span class="trophy-icon">${trophy.icon}</span>
+                <span class="trophy-name">${trophy.name}</span>
+            </div>
+        `).join('');
+        
+        trophiesGrid.innerHTML = trophiesHTML;
     }
 
     updateStreakCounter() {
@@ -1378,6 +1471,35 @@ class RedditJournal {
         this.trackUserInteraction('copy_link', { postId });
     }
 
+    navigatePosts(direction) {
+        const posts = document.querySelectorAll('.post-card');
+        const currentActive = document.querySelector('.post-card.active');
+        let currentIndex = 0;
+        
+        if (currentActive) {
+            currentIndex = Array.from(posts).indexOf(currentActive);
+        }
+        
+        // Remove active class from all posts
+        posts.forEach(post => post.classList.remove('active'));
+        
+        // Calculate new index
+        let newIndex;
+        if (direction === 'next') {
+            newIndex = (currentIndex + 1) % posts.length;
+        } else {
+            newIndex = (currentIndex - 1 + posts.length) % posts.length;
+        }
+        
+        // Add active class to new post
+        posts[newIndex].classList.add('active');
+        
+        // Scroll to post
+        posts[newIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        if (this.debugMode) console.log(`🎯 Navigated to post ${newIndex + 1}/${posts.length}`);
+    }
+
     getMonthName(month) {
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 
                        'July', 'August', 'September', 'October', 'November', 'December'];
@@ -1480,6 +1602,22 @@ class RedditJournal {
                         <div class="shortcut-item">
                             <kbd>S</kbd>
                             <span>Save post</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>J</kbd>
+                            <span>Next post</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>K</kbd>
+                            <span>Previous post</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>1-4</kbd>
+                            <span>Sort posts (New, Hot, Top, Rising)</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>?</kbd>
+                            <span>Show this shortcuts modal</span>
                         </div>
                     </div>
                 </div>

@@ -882,6 +882,53 @@ body.reduced-motion .progress-bar {
     margin-top: 2px;
 }
 
+/* Post Navigation */
+.post-card.active {
+    border: 2px solid var(--color-accent);
+    box-shadow: 0 0 0 4px rgba(255, 69, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.post-card.active .post-title {
+    color: var(--color-accent);
+}
+
+/* Trophies System */
+.trophies-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-sm);
+}
+
+.trophy {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+}
+
+.trophy.unlocked {
+    background: var(--color-success);
+    color: white;
+    opacity: 1;
+}
+
+.trophy.locked {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-muted);
+    opacity: 0.6;
+}
+
+.trophy-icon {
+    font-size: 1.1rem;
+}
+
+.trophy-name {
+    font-weight: 500;
+}
+
 /* iOS-specific optimizations */
 @supports (-webkit-touch-callout: none) {
     body {
