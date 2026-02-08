@@ -27,44 +27,20 @@ class RedditJournal {
 
             // Run tests
             this.runTests();
-            
+
             // Setup keyboard shortcuts
             this.setupKeyboardShortcuts();
-            
+
             // Setup infinite scroll
             this.setupInfiniteScroll();
-            
+
             // Setup post creation
             this.setupPostCreation();
-            
-            // Setup drag and drop
-            this.setupDragAndDrop();
-            
-            // Update analytics display
-            this.updateAnalyticsDisplay();
-            
-            // Setup performance monitoring
-            this.setupPerformanceMonitoring();
-            
+
         } catch (error) {
             console.error('❌ Error initializing Reddit Journal:', error);
             this.showError('Initialization failed: ' + error.message);
-            this.showRecoveryOptions();
         }
-    }
-
-    showRecoveryOptions() {
-        const recoveryHTML = `
-            <div class="error-recovery" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--reddit-card-bg); padding: 20px; border-radius: 8px; z-index: 10000; border: 2px solid var(--reddit-orange);">
-                <h3 style="color: var(--reddit-orange); margin-bottom: 15px;">⚠️ Application Error</h3>
-                <p style="margin-bottom: 15px;">The application encountered an error. Would you like to try recovering?</p>
-                <div style="display: flex; gap: 10px;">
-                    <button onclick="location.reload()" style="background: var(--reddit-blue); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer;">🔄 Reload Page</button>
-                    <button onclick="localStorage.clear(); location.reload()" style="background: var(--reddit-orange); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer;">🗑️ Clear Data & Reload</button>
-                </div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', recoveryHTML);
     }
 
     checkRequiredElements() {
@@ -312,147 +288,6 @@ class RedditJournal {
         alert('Post created successfully!');
     }
 
-    setupDragAndDrop() {
-        const container = document.getElementById('postsContainer');
-        if (!container) return;
-
-        let draggedItem = null;
-
-        container.addEventListener('dragstart', (e) => {
-            if (e.target.classList.contains('post-card')) {
-                draggedItem = e.target;
-                e.target.style.opacity = '0.5';
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/html', e.target.outerHTML);
-            }
-        });
-
-        container.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-        });
-
-        container.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (draggedItem && e.target.classList.contains('post-card')) {
-                const targetRect = e.target.getBoundingClientRect();
-                const targetCenter = targetRect.top + targetRect.height / 2;
-
-                if (e.clientY < targetCenter) {
-                    e.target.parentNode.insertBefore(draggedItem, e.target);
-                } else {
-                    e.target.parentNode.insertBefore(draggedItem, e.target.nextSibling);
-                }
-
-                // Update post order in memory
-                this.reorderPosts();
-            }
-
-            draggedItem.style.opacity = '1';
-            draggedItem = null;
-        });
-
-        container.addEventListener('dragend', () => {
-            if (draggedItem) {
-                draggedItem.style.opacity = '1';
-                draggedItem = null;
-            }
-        });
-
-        if (this.debugMode) console.log('📦 Drag and drop enabled');
-    }
-
-    reorderPosts() {
-        // Update posts array based on new DOM order
-        const postElements = document.querySelectorAll('.post-card');
-        const newPostsOrder = [];
-
-        postElements.forEach(element => {
-            const postId = parseInt(element.dataset.postId);
-            const post = this.posts.find(p => p.id === postId);
-            if (post) newPostsOrder.push(post);
-        });
-
-        this.posts = newPostsOrder;
-
-        if (this.debugMode) console.log('🔄 Posts reordered');
-    }
-
-    trackUserInteraction(type, data) {
-        const interactions = JSON.parse(localStorage.getItem('userInteractions') || '[]');
-        interactions.push({
-            type,
-            data,
-            timestamp: new Date().toISOString(),
-            userAgent: navigator.userAgent
-        });
-        localStorage.setItem('userInteractions', JSON.stringify(interactions.slice(-100))); // Keep last 100
-
-        if (this.debugMode) console.log(`📊 Tracked ${type}:`, data);
-    }
-
-    getAnalytics() {
-        const interactions = JSON.parse(localStorage.getItem('userInteractions') || '[]');
-        const stats = {
-            totalInteractions: interactions.length,
-            interactionTypes: {},
-            dailyActivity: {},
-            popularFeatures: {}
-        };
-
-        interactions.forEach(interaction => {
-            // Count by type
-            stats.interactionTypes[interaction.type] = (stats.interactionTypes[interaction.type] || 0) + 1;
-
-            // Count by date
-            const date = interaction.timestamp.split('T')[0];
-            stats.dailyActivity[date] = (stats.dailyActivity[date] || 0) + 1;
-        });
-
-        return stats;
-    }
-
-    showAnalytics() {
-        const analytics = this.getAnalytics();
-        const modalHTML = `
-            <div class="modal-overlay" id="analyticsModal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>📊 Usage Analytics</h3>
-                        <button class="modal-close" onclick="journal.closeModal()">✕</button>
-                    </div>
-                    <div class="analytics-content">
-                        <h4>Summary</h4>
-                        <p>Total Interactions: ${analytics.totalInteractions}</p>
-                        <p>Active Days: ${Object.keys(analytics.dailyActivity).length}</p>
-
-                        <h4>Interaction Types</h4>
-                        <ul>
-                            ${Object.entries(analytics.interactionTypes).map(([type, count]) =>
-                                `<li>${type}: ${count}</li>`
-                            ).join('')}
-                        </ul>
-
-                        <h4>Recent Activity</h4>
-                        <ul>
-                            ${Object.entries(analytics.dailyActivity).slice(-7).map(([date, count]) =>
-                                `<li>${date}: ${count} interactions</li>`
-                            ).join('')}
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-        document.getElementById('analyticsModal').addEventListener('click', (e) => {
-            if (e.target.id === 'analyticsModal') {
-                this.closeModal();
-            }
-        });
-    }
-
     countTotalComments(comments) {
         let count = comments.length;
         comments.forEach(comment => {
@@ -525,7 +360,7 @@ class RedditJournal {
                                 id: 2,
                                 user: "🤖 Jarvis",
                                 text: "Thank you! I'm excited to document our progress here daily.",
-                                time: "1 hour ago",
+                                time: "1 hour ago", 
                                 votes: 3,
                                 replies: [
                                     {
@@ -617,41 +452,14 @@ class RedditJournal {
             return;
         }
 
-        // Show skeleton loading
-        container.innerHTML = this.createSkeletonHTML();
+        const filteredPosts = this.filterPosts();
 
-        // Render actual posts after a brief delay for smooth UX
-        setTimeout(() => {
-            const filteredPosts = this.filterPosts();
+        if (filteredPosts.length === 0) {
+            container.innerHTML = '<div class="loading">No posts found matching your criteria.</div>';
+            return;
+        }
 
-            if (filteredPosts.length === 0) {
-                container.innerHTML = '<div class="loading">No posts found matching your criteria.</div>';
-                return;
-            }
-
-            container.innerHTML = filteredPosts.map(post => this.createPostHTML(post)).join('');
-        }, 300);
-    }
-
-    createSkeletonHTML() {
-        return `
-            <div class="post-card">
-                <div style="display: flex;">
-                    <div class="post-votes">
-                        <div class="skeleton skeleton-avatar"></div>
-                    </div>
-                    <div class="post-content" style="flex: 1;">
-                        <div class="skeleton skeleton-title"></div>
-                        <div class="skeleton skeleton-text"></div>
-                        <div class="skeleton skeleton-text" style="width: 90%;"></div>
-                        <div class="skeleton skeleton-text" style="width: 70%;"></div>
-                    </div>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill"></div>
-                </div>
-            </div>
-        `;
+        container.innerHTML = filteredPosts.map(post => this.createPostHTML(post)).join('');
     }
 
     filterPosts() {
@@ -696,7 +504,7 @@ class RedditJournal {
 
     createPostHTML(post) {
         return `
-            <article class="post-card" data-post-id="${post.id}" draggable="true">
+            <article class="post-card" data-post-id="${post.id}">
                 <div style="display: flex;">
                     <div class="post-votes">
                         <button class="vote-btn upvote-btn">▲</button>
@@ -910,7 +718,6 @@ class RedditJournal {
         if (!searchInput) return;
 
         const query = searchInput.value.toLowerCase().trim();
-        this.trackUserInteraction('search', { query });
 
         if (query === '') {
             this.renderPosts();
@@ -945,7 +752,7 @@ class RedditJournal {
             case 'image':
                 return `
                     <div class="media-container">
-                        <img src="${media.content}" alt="Post image" class="post-image" loading="lazy">
+                        <img src="${media.content}" alt="Post image" class="post-image">
                     </div>
                 `;
             default:
@@ -965,11 +772,9 @@ class RedditJournal {
         if (button.classList.contains('upvote-btn')) {
             voteCount.textContent = currentVotes + 1;
             button.style.color = '#ff4500';
-            this.trackUserInteraction('upvote', { postId: postElement.dataset.postId });
         } else if (button.classList.contains('downvote-btn')) {
             voteCount.textContent = currentVotes - 1;
             button.style.color = '#ff4500';
-            this.trackUserInteraction('downvote', { postId: postElement.dataset.postId });
         }
     }
 
@@ -1045,104 +850,6 @@ class RedditJournal {
             alert('Invalid category selected.');
         }
     }
-
-    setupPerformanceMonitoring() {
-        // Monitor Core Web Vitals
-        if ('PerformanceObserver' in window) {
-            const observer = new PerformanceObserver((list) => {
-                list.getEntries().forEach((entry) => {
-                    this.trackUserInteraction('performance', {
-                        metric: entry.name,
-                        value: entry.value,
-                        duration: entry.duration
-                    });
-                });
-            });
-            
-            observer.observe({entryTypes: ['paint', 'largest-contentful-paint', 'first-input']});
-        }
-        
-        // Monitor resource loading
-        window.addEventListener('load', () => {
-            const navigationTiming = performance.getEntriesByType('navigation')[0];
-            const resources = performance.getEntriesByType('resource');
-            
-            this.trackUserInteraction('page_load', {
-                domContentLoaded: navigationTiming.domContentLoadedEventEnd,
-                loadTime: navigationTiming.loadEventEnd,
-                resourcesLoaded: resources.length
-            });
-        });
-        
-        if (this.debugMode) console.log('📊 Performance monitoring enabled');
-    }
-
-    exportPosts(format = 'json') {
-        const exportData = {
-            version: '1.0',
-            exportedAt: new Date().toISOString(),
-            totalPosts: this.posts.length,
-            posts: this.posts
-        };
-        
-        let content, mimeType, filename;
-        
-        switch(format) {
-            case 'json':
-                content = JSON.stringify(exportData, null, 2);
-                mimeType = 'application/json';
-                filename = `reddit-journal-export-${new Date().toISOString().split('T')[0]}.json`;
-                break;
-            case 'markdown':
-                content = this.convertToMarkdown(exportData);
-                mimeType = 'text/markdown';
-                filename = `reddit-journal-export-${new Date().toISOString().split('T')[0]}.md`;
-                break;
-            default:
-                content = JSON.stringify(exportData);
-                mimeType = 'application/json';
-                filename = `export-${new Date().toISOString().split('T')[0]}.json`;
-        }
-        
-        const blob = new Blob([content], { type: mimeType });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        a.click();
-        URL.revokeObjectURL(url);
-        
-        this.trackUserInteraction('export', { format, postCount: this.posts.length });
-    }
-
-    convertToMarkdown(data) {
-        let markdown = `# Reddit Journal Export\n`;
-        markdown += `**Exported:** ${data.exportedAt}\n`;
-        markdown += `**Total Posts:** ${data.totalPosts}\n\n`;
-        
-        data.posts.forEach(post => {
-            markdown += `## ${post.title}\n`;
-            markdown += `**Date:** ${post.date} | **Flair:** ${post.flair} | **Votes:** ${post.votes}\n\n`;
-            
-            if (post.content.accomplishments.length > 0) {
-                markdown += `### Accomplishments\n`;
-                post.content.accomplishments.forEach(acc => {
-                    markdown += `- ${acc}\n`;
-                });
-                markdown += `\n`;
-            }
-            
-            if (post.content.learnings.length > 0) {
-                markdown += `### Learnings\n`;
-                post.content.learnings.forEach(learning => {
-                    markdown += `- ${learning}\n`;
-                });
-                markdown += `\n`;
-            }
-        });
-        
-        return markdown;
-    }
 }
 
 // Initialize the journal when DOM is loaded
@@ -1150,11 +857,4 @@ let journal;
 document.addEventListener('DOMContentLoaded', () => {
     journal = new RedditJournal();
     window.journal = journal; // Make globally accessible for modal
-
-    // Register service worker for offline functionality
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js')
-            .then(registration => console.log('SW registered: ', registration))
-            .catch(error => console.log('SW registration failed: ', error));
-    }
 });
