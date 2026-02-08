@@ -11,32 +11,32 @@ class RedditJournal {
     init() {
         try {
             if (this.debugMode) console.log('🚀 Initializing Reddit Journal...');
-            
+
             // Check if required elements exist
             this.checkRequiredElements();
-            
+
             this.loadPosts();
             this.setupEventListeners();
             this.updateStats();
             this.loadTheme();
-            
+
             if (this.debugMode) console.log('✅ Reddit Journal initialized successfully');
-            
+
             // Show initialization status
             this.showInitStatus();
-            
+
             // Run tests
             this.runTests();
-            
+
             // Setup keyboard shortcuts
             this.setupKeyboardShortcuts();
-            
+
             // Setup infinite scroll
             this.setupInfiniteScroll();
-            
+
             // Setup post creation
             this.setupPostCreation();
-            
+
         } catch (error) {
             console.error('❌ Error initializing Reddit Journal:', error);
             this.showError('Initialization failed: ' + error.message);
@@ -46,17 +46,17 @@ class RedditJournal {
     checkRequiredElements() {
         const required = ['postsContainer', 'themeToggle', 'searchInput', 'searchBtn'];
         const missing = [];
-        
+
         required.forEach(id => {
             if (!document.getElementById(id)) {
                 missing.push(id);
             }
         });
-        
+
         if (missing.length > 0) {
             throw new Error(`Missing required elements: ${missing.join(', ')}`);
         }
-        
+
         if (this.debugMode) console.log('✅ All required elements found');
     }
 
@@ -67,7 +67,7 @@ class RedditJournal {
             </div>
         `;
         document.body.insertAdjacentHTML('beforeend', statusHTML);
-        
+
         // Remove after 3 seconds
         setTimeout(() => {
             const statusEl = document.querySelector('[style*="position: fixed"]');
@@ -86,7 +86,7 @@ class RedditJournal {
 
     runTests() {
         if (!this.debugMode) return;
-        
+
         const tests = [
             { name: 'Posts loaded', test: () => this.posts.length > 0 },
             { name: 'Event listeners attached', test: () => document.getElementById('themeToggle').onclick !== null },
@@ -94,21 +94,21 @@ class RedditJournal {
             { name: 'Theme system', test: () => localStorage.getItem('theme') !== null },
             { name: 'Sorting functionality', test: () => this.currentSort !== undefined }
         ];
-        
+
         const results = tests.map(test => ({
             name: test.name,
             passed: test.test()
         }));
-        
+
         console.log('🧪 Running tests...', results);
-        
+
         const failed = results.filter(r => !r.passed);
         if (failed.length > 0) {
             console.warn('Some tests failed:', failed);
         } else {
             console.log('✅ All tests passed!');
         }
-        
+
         return results;
     }
 
@@ -116,7 +116,7 @@ class RedditJournal {
         document.addEventListener('keydown', (e) => {
             // Only trigger when not typing in inputs
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-            
+
             switch(e.key) {
                 case 't':
                     if (e.ctrlKey || e.metaKey) {
@@ -150,32 +150,32 @@ class RedditJournal {
                     break;
             }
         });
-        
+
         if (this.debugMode) console.log('⌨️ Keyboard shortcuts enabled');
     }
 
     setupInfiniteScroll() {
         let loading = false;
-        
+
         window.addEventListener('scroll', () => {
             if (loading) return;
-            
+
             const scrollPosition = window.scrollY + window.innerHeight;
             const pageHeight = document.documentElement.scrollHeight;
-            
+
             // Load more posts when 80% from bottom
             if (scrollPosition > pageHeight * 0.8) {
                 loading = true;
                 this.loadMorePosts();
             }
         });
-        
+
         if (this.debugMode) console.log('∞ Infinite scroll enabled');
     }
 
     loadMorePosts() {
         if (this.debugMode) console.log('📥 Loading more posts...');
-        
+
         // Simulate loading more posts
         setTimeout(() => {
             const newPost = {
@@ -190,10 +190,10 @@ class RedditJournal {
                     improvements: ["Continuous system enhancements"]
                 }
             };
-            
+
             this.posts.push(newPost);
             this.renderPosts();
-            
+
             if (this.debugMode) console.log(`✅ Loaded post #${newPost.id}`);
         }, 1000);
     }
@@ -202,7 +202,7 @@ class RedditJournal {
         document.getElementById('createPostBtn').addEventListener('click', () => {
             this.showPostCreationModal();
         });
-        
+
         if (this.debugMode) console.log('📝 Post creation system enabled');
     }
 
@@ -240,14 +240,14 @@ class RedditJournal {
                 </div>
             </div>
         `;
-        
+
         document.body.insertAdjacentHTML('beforeend', modalHTML);
-        
+
         document.getElementById('postForm').addEventListener('submit', (e) => {
             e.preventDefault();
             this.createPost();
         });
-        
+
         // Close modal when clicking outside
         document.getElementById('postModal').addEventListener('click', (e) => {
             if (e.target.id === 'postModal') {
@@ -265,7 +265,7 @@ class RedditJournal {
         const title = document.getElementById('postTitle').value;
         const flair = document.getElementById('postFlair').value;
         const content = document.getElementById('postContent').value;
-        
+
         const newPost = {
             id: this.posts.length + 1,
             title: title,
@@ -279,13 +279,46 @@ class RedditJournal {
             },
             comments: 0
         };
-        
+
         this.posts.unshift(newPost); // Add to beginning
         this.renderPosts();
         this.closeModal();
-        
+
         if (this.debugMode) console.log('✅ New post created:', newPost.title);
         alert('Post created successfully!');
+    }
+
+    countTotalComments(comments) {
+        let count = comments.length;
+        comments.forEach(comment => {
+            if (comment.replies) {
+                count += this.countTotalComments(comment.replies);
+            }
+        });
+        return count;
+    }
+
+    renderComments(comments, depth = 0) {
+        return comments.map(comment => `
+            <div class="comment" style="margin-left: ${depth * 20}px;">
+                <div class="comment-header">
+                    <span class="comment-user">${comment.user}</span>
+                    <span class="comment-time">${comment.time}</span>
+                </div>
+                <div class="comment-text">${comment.text}</div>
+                <div class="comment-votes">
+                    <button class="vote-btn upvote-btn">▲</button>
+                    <span class="vote-count">${comment.votes}</span>
+                    <button class="vote-btn downvote-btn">▼</button>
+                    <button class="reply-btn" onclick="journal.addReply(${comment.id})">💬 Reply</button>
+                </div>
+                ${comment.replies && comment.replies.length > 0 ? this.renderComments(comment.replies, depth + 1) : ''}
+            </div>
+        `).join('');
+    }
+
+    addReply(commentId) {
+        alert('Reply functionality would be implemented here! Comment ID: ' + commentId);
     }
 
     loadPosts() {
@@ -317,16 +350,29 @@ class RedditJournal {
                 comments: 3,
                 commentData: [
                     {
+                        id: 1,
                         user: "👤 Shubham",
                         text: "This looks amazing! The Reddit-style interface is perfect for daily journaling.",
                         time: "2 hours ago",
-                        votes: 5
-                    },
-                    {
-                        user: "🤖 Jarvis",
-                        text: "Thank you! I'm excited to document our progress here daily.",
-                        time: "1 hour ago",
-                        votes: 3
+                        votes: 5,
+                        replies: [
+                            {
+                                id: 2,
+                                user: "🤖 Jarvis",
+                                text: "Thank you! I'm excited to document our progress here daily.",
+                                time: "1 hour ago", 
+                                votes: 3,
+                                replies: [
+                                    {
+                                        id: 3,
+                                        user: "👤 Shubham",
+                                        text: "The attention to detail is impressive. Great work!",
+                                        time: "30 minutes ago",
+                                        votes: 2
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ],
                 awards: ["🏆", "🎯", "🚀"],
@@ -758,7 +804,7 @@ class RedditJournal {
     savePost(postElement) {
         const postId = postElement.dataset.postId;
         const savedPosts = JSON.parse(localStorage.getItem('savedPosts') || '[]');
-        
+
         if (!savedPosts.includes(postId)) {
             savedPosts.push(postId);
             localStorage.setItem('savedPosts', JSON.stringify(savedPosts));
@@ -774,7 +820,7 @@ class RedditJournal {
             { type: 'comment', text: 'New comment on your post', time: '1 hour ago' },
             { type: 'award', text: 'You received the 🏆 award', time: '2 hours ago' }
         ];
-        
+
         const notificationHTML = notifications.map(notif => `
             <div class="notification-item">
                 <div class="notification-type">${notif.type === 'upvote' ? '⬆️' : notif.type === 'comment' ? '💬' : '🏆'}</div>
@@ -784,9 +830,9 @@ class RedditJournal {
                 </div>
             </div>
         `).join('');
-        
+
         alert('Notifications:\n' + notifications.map(n => `${n.text} (${n.time})`).join('\n'));
-        
+
         // In a real implementation, you'd show a dropdown
         document.getElementById('notificationCount').textContent = '0';
     }
@@ -794,9 +840,9 @@ class RedditJournal {
     crosspost(postElement) {
         const postTitle = postElement.querySelector('.post-title').textContent;
         const categories = ['#DailyUpdate', '#ProjectComplete', '#NewSkill', '#Improvement'];
-        
+
         const selectedCategory = prompt(`Crosspost "${postTitle}" to which category?\n\nAvailable: ${categories.join(', ')}`);
-        
+
         if (selectedCategory && categories.includes(selectedCategory)) {
             alert(`Post crossposted to ${selectedCategory}!`);
             // In a real implementation, you'd create a new post

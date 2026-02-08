@@ -891,3 +891,33 @@ body.light-mode .comments-section h4 {
     min-width: 20px;
     text-align: center;
 }
+
+/* Nested Comments */
+.comment {
+    border-left: 2px solid transparent;
+    transition: border-left-color 0.3s;
+}
+
+.comment:hover {
+    border-left-color: var(--reddit-blue);
+}
+
+/* Reply Button */
+.reply-btn {
+    background: none;
+    border: none;
+    color: var(--reddit-blue);
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 15px;
+    transition: background-color 0.3s;
+}
+
+.reply-btn:hover {
+    background-color: rgba(0, 121, 211, 0.1);
+}
+
+body.light-mode .reply-btn:hover {
+    background-color: rgba(0, 121, 211, 0.05);
+}
