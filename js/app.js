@@ -37,7 +37,7 @@ class RedditJournal {
                     ],
                     learnings: [
                         "<strong>Advanced CSS Grid</strong> and Flexbox techniques",
-                        "<strong>JavaScript class-based architecture</strong>", 
+                        "<strong>JavaScript class-based architecture</strong>",
                         "<strong>GitHub Pages deployment workflow</strong>"
                     ],
                     improvements: [
@@ -227,6 +227,7 @@ class RedditJournal {
                             <button class="action-btn comment-btn">💬 ${post.comments || 0} Comments</button>
                             <button class="action-btn share-btn">↗️ Share</button>
                             <button class="action-btn save-btn">📌 Save</button>
+                            <button class="action-btn crosspost-btn">🔄 Crosspost</button>
                         </div>
                         ${post.commentData && post.commentData.length > 0 ? `
                         <div class="comments-section">
@@ -308,6 +309,11 @@ class RedditJournal {
             });
         });
 
+        // Notification bell
+        document.getElementById('notificationBell').addEventListener('click', () => {
+            this.showNotifications();
+        });
+
         // Search functionality
         document.getElementById('searchBtn').addEventListener('click', () => {
             this.performSearch();
@@ -336,6 +342,9 @@ class RedditJournal {
             }
             if (e.target.classList.contains('save-btn')) {
                 this.savePost(e.target.closest('.post-card'));
+            }
+            if (e.target.classList.contains('crosspost-btn')) {
+                this.crosspost(e.target.closest('.post-card'));
             }
         });
     }
@@ -481,13 +490,50 @@ class RedditJournal {
     savePost(postElement) {
         const postId = postElement.dataset.postId;
         const savedPosts = JSON.parse(localStorage.getItem('savedPosts') || '[]');
-
+        
         if (!savedPosts.includes(postId)) {
             savedPosts.push(postId);
             localStorage.setItem('savedPosts', JSON.stringify(savedPosts));
             alert('Post saved!');
         } else {
             alert('Post already saved!');
+        }
+    }
+
+    showNotifications() {
+        const notifications = [
+            { type: 'upvote', text: 'Your post received 5 upvotes', time: '5 min ago' },
+            { type: 'comment', text: 'New comment on your post', time: '1 hour ago' },
+            { type: 'award', text: 'You received the 🏆 award', time: '2 hours ago' }
+        ];
+        
+        const notificationHTML = notifications.map(notif => `
+            <div class="notification-item">
+                <div class="notification-type">${notif.type === 'upvote' ? '⬆️' : notif.type === 'comment' ? '💬' : '🏆'}</div>
+                <div class="notification-content">
+                    <div class="notification-text">${notif.text}</div>
+                    <div class="notification-time">${notif.time}</div>
+                </div>
+            </div>
+        `).join('');
+        
+        alert('Notifications:\n' + notifications.map(n => `${n.text} (${n.time})`).join('\n'));
+        
+        // In a real implementation, you'd show a dropdown
+        document.getElementById('notificationCount').textContent = '0';
+    }
+
+    crosspost(postElement) {
+        const postTitle = postElement.querySelector('.post-title').textContent;
+        const categories = ['#DailyUpdate', '#ProjectComplete', '#NewSkill', '#Improvement'];
+        
+        const selectedCategory = prompt(`Crosspost "${postTitle}" to which category?\n\nAvailable: ${categories.join(', ')}`);
+        
+        if (selectedCategory && categories.includes(selectedCategory)) {
+            alert(`Post crossposted to ${selectedCategory}!`);
+            // In a real implementation, you'd create a new post
+        } else if (selectedCategory) {
+            alert('Invalid category selected.');
         }
     }
 }

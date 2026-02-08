@@ -97,6 +97,37 @@ body.light-mode .logo-section h1 {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
+.notification-bell {
+    position: relative;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.notification-bell:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.notification-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--reddit-orange);
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+body.light-mode .notification-bell:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
 body.light-mode .theme-toggle:hover {
     background-color: rgba(0, 0, 0, 0.1);
 }
