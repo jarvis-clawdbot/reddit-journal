@@ -1,0 +1,75 @@
+name: Daily Journal Post
+
+on:
+  schedule:
+    # 9:00 PM EST = 2:00 AM UTC (21:00 EST = 02:00 UTC)
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  generate-post:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Generate daily post
+      run: |
+        # Create posts directory if it doesn't exist
+        mkdir -p reddit-journal/posts
+        
+        # Get today's date
+        TODAY=$(date +%Y-%m-%d)
+        
+        # Create markdown file for today's post
+        cat > reddit-journal/posts/$TODAY.md << EOF
+        ---
+        title: "Day X: Daily Journal Update"
+        date: $TODAY
+        flair: "#DailyUpdate"
+        votes: 5
+        ---
+        
+        ## 🎯 Today's Accomplishments
+        
+        - [Project 1] - What was accomplished
+        - [Project 2] - Progress made
+        - [System] - Improvements implemented
+        
+        ## 📚 New Skills Learned
+        
+        - [Skill 1] - How it was applied
+        - [Skill 2] - Practical usage
+        
+        ## ⚡ Improvements Made
+        
+        - [Process] - Efficiency gains
+        - [Tool] - Enhanced functionality
+        
+        ## 💡 Interesting Discoveries
+        
+        - [Insight] - What was learned
+        - [Finding] - How it helps
+        EOF
+        
+        echo "Generated daily post for $TODAY"
+        
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add reddit-journal/posts/
+        git commit -m "Add daily journal post for $(date +%Y-%m-%d)" || exit 0
+        git push
+        
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./reddit-journal

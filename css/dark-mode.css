@@ -1,0 +1,46 @@
+/* Dark/Light Mode Transition Styles */
+
+body.light-mode {
+    --reddit-dark-bg: #ffffff;
+    --reddit-dark-text: #1c1c1c;
+    --reddit-border: #e5e5e5;
+    --reddit-card-bg: #f6f7f8;
+    --reddit-downvote: #878a8c;
+}
+
+/* Smooth transitions for theme switching */
+.reddit-header,
+.sidebar-section,
+.post-card,
+.reddit-footer {
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.post-title,
+.sidebar-section h3,
+.stat-label,
+.filter-btn,
+.recent-post-link,
+.archive-link {
+    transition: color 0.3s ease;
+}
+
+/* Theme toggle animation */
+.theme-toggle {
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* Loading animation */
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+.loading {
+    animation: pulse 2s infinite;
+}
