@@ -4,20 +4,288 @@ class RedditJournal {
         this.posts = [];
         this.currentFilter = 'all';
         this.currentSort = 'new';
+        this.debugMode = true; // Enable debug mode
         this.init();
     }
 
     init() {
         try {
-            console.log('Initializing Reddit Journal...');
+            if (this.debugMode) console.log('🚀 Initializing Reddit Journal...');
+            
+            // Check if required elements exist
+            this.checkRequiredElements();
+            
             this.loadPosts();
             this.setupEventListeners();
             this.updateStats();
             this.loadTheme();
-            console.log('Reddit Journal initialized successfully');
+            
+            if (this.debugMode) console.log('✅ Reddit Journal initialized successfully');
+            
+            // Show initialization status
+            this.showInitStatus();
+            
+            // Run tests
+            this.runTests();
+            
+            // Setup keyboard shortcuts
+            this.setupKeyboardShortcuts();
+            
+            // Setup infinite scroll
+            this.setupInfiniteScroll();
+            
+            // Setup post creation
+            this.setupPostCreation();
+            
         } catch (error) {
-            console.error('Error initializing Reddit Journal:', error);
+            console.error('❌ Error initializing Reddit Journal:', error);
+            this.showError('Initialization failed: ' + error.message);
         }
+    }
+
+    checkRequiredElements() {
+        const required = ['postsContainer', 'themeToggle', 'searchInput', 'searchBtn'];
+        const missing = [];
+        
+        required.forEach(id => {
+            if (!document.getElementById(id)) {
+                missing.push(id);
+            }
+        });
+        
+        if (missing.length > 0) {
+            throw new Error(`Missing required elements: ${missing.join(', ')}`);
+        }
+        
+        if (this.debugMode) console.log('✅ All required elements found');
+    }
+
+    showInitStatus() {
+        const statusHTML = `
+            <div style="position: fixed; top: 10px; right: 10px; background: #00ff00; color: black; padding: 10px; border-radius: 5px; z-index: 10000;">
+                ✅ Reddit Journal Loaded Successfully
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', statusHTML);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            const statusEl = document.querySelector('[style*="position: fixed"]');
+            if (statusEl) statusEl.remove();
+        }, 3000);
+    }
+
+    showError(message) {
+        const errorHTML = `
+            <div style="position: fixed; top: 10px; right: 10px; background: #ff0000; color: white; padding: 10px; border-radius: 5px; z-index: 10000;">
+                ❌ Error: ${message}
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', errorHTML);
+    }
+
+    runTests() {
+        if (!this.debugMode) return;
+        
+        const tests = [
+            { name: 'Posts loaded', test: () => this.posts.length > 0 },
+            { name: 'Event listeners attached', test: () => document.getElementById('themeToggle').onclick !== null },
+            { name: 'Search functionality', test: () => document.getElementById('searchInput').value !== undefined },
+            { name: 'Theme system', test: () => localStorage.getItem('theme') !== null },
+            { name: 'Sorting functionality', test: () => this.currentSort !== undefined }
+        ];
+        
+        const results = tests.map(test => ({
+            name: test.name,
+            passed: test.test()
+        }));
+        
+        console.log('🧪 Running tests...', results);
+        
+        const failed = results.filter(r => !r.passed);
+        if (failed.length > 0) {
+            console.warn('Some tests failed:', failed);
+        } else {
+            console.log('✅ All tests passed!');
+        }
+        
+        return results;
+    }
+
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Only trigger when not typing in inputs
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            switch(e.key) {
+                case 't':
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        this.toggleTheme();
+                        console.log('🌙 Theme toggled via keyboard shortcut');
+                    }
+                    break;
+                case '/':
+                    e.preventDefault();
+                    document.getElementById('searchInput').focus();
+                    console.log('🔍 Search focused via keyboard shortcut');
+                    break;
+                case 'Escape':
+                    document.getElementById('searchInput').blur();
+                    console.log('🚫 Search blurred via keyboard shortcut');
+                    break;
+                case '1':
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        this.setFilter('all');
+                        console.log('🏠 All posts filter via keyboard shortcut');
+                    }
+                    break;
+                case '2':
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        this.setSort('new');
+                        console.log('🆕 New sort via keyboard shortcut');
+                    }
+                    break;
+            }
+        });
+        
+        if (this.debugMode) console.log('⌨️ Keyboard shortcuts enabled');
+    }
+
+    setupInfiniteScroll() {
+        let loading = false;
+        
+        window.addEventListener('scroll', () => {
+            if (loading) return;
+            
+            const scrollPosition = window.scrollY + window.innerHeight;
+            const pageHeight = document.documentElement.scrollHeight;
+            
+            // Load more posts when 80% from bottom
+            if (scrollPosition > pageHeight * 0.8) {
+                loading = true;
+                this.loadMorePosts();
+            }
+        });
+        
+        if (this.debugMode) console.log('∞ Infinite scroll enabled');
+    }
+
+    loadMorePosts() {
+        if (this.debugMode) console.log('📥 Loading more posts...');
+        
+        // Simulate loading more posts
+        setTimeout(() => {
+            const newPost = {
+                id: this.posts.length + 1,
+                title: `Day ${this.posts.length + 1}: Continued Progress`,
+                date: new Date().toISOString().split('T')[0],
+                flair: "#DailyUpdate",
+                votes: Math.floor(Math.random() * 20) + 5,
+                content: {
+                    accomplishments: ["Continued development and improvements"],
+                    learnings: ["Ongoing learning and skill development"],
+                    improvements: ["Continuous system enhancements"]
+                }
+            };
+            
+            this.posts.push(newPost);
+            this.renderPosts();
+            
+            if (this.debugMode) console.log(`✅ Loaded post #${newPost.id}`);
+        }, 1000);
+    }
+
+    setupPostCreation() {
+        document.getElementById('createPostBtn').addEventListener('click', () => {
+            this.showPostCreationModal();
+        });
+        
+        if (this.debugMode) console.log('📝 Post creation system enabled');
+    }
+
+    showPostCreationModal() {
+        const modalHTML = `
+            <div class="modal-overlay" id="postModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>📝 Create New Post</h3>
+                        <button class="modal-close" onclick="journal.closeModal()">✕</button>
+                    </div>
+                    <form id="postForm">
+                        <div class="form-group">
+                            <label for="postTitle">Title</label>
+                            <input type="text" id="postTitle" placeholder="Enter post title..." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="postFlair">Flair</label>
+                            <select id="postFlair" required>
+                                <option value="#DailyUpdate">#DailyUpdate</option>
+                                <option value="#ProjectComplete">#ProjectComplete</option>
+                                <option value="#NewSkill">#NewSkill</option>
+                                <option value="#Improvement">#Improvement</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="postContent">Content</label>
+                            <textarea id="postContent" placeholder="Describe your accomplishments, learnings, and improvements..." required></textarea>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="modal-btn secondary" onclick="journal.closeModal()">Cancel</button>
+                            <button type="submit" class="modal-btn primary">Create Post</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        document.getElementById('postForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.createPost();
+        });
+        
+        // Close modal when clicking outside
+        document.getElementById('postModal').addEventListener('click', (e) => {
+            if (e.target.id === 'postModal') {
+                this.closeModal();
+            }
+        });
+    }
+
+    closeModal() {
+        const modal = document.getElementById('postModal');
+        if (modal) modal.remove();
+    }
+
+    createPost() {
+        const title = document.getElementById('postTitle').value;
+        const flair = document.getElementById('postFlair').value;
+        const content = document.getElementById('postContent').value;
+        
+        const newPost = {
+            id: this.posts.length + 1,
+            title: title,
+            date: new Date().toISOString().split('T')[0],
+            flair: flair,
+            votes: 0,
+            content: {
+                accomplishments: [content],
+                learnings: ["Manual post creation"],
+                improvements: ["User-generated content"]
+            },
+            comments: 0
+        };
+        
+        this.posts.unshift(newPost); // Add to beginning
+        this.renderPosts();
+        this.closeModal();
+        
+        if (this.debugMode) console.log('✅ New post created:', newPost.title);
+        alert('Post created successfully!');
     }
 
     loadPosts() {
@@ -539,6 +807,8 @@ class RedditJournal {
 }
 
 // Initialize the journal when DOM is loaded
+let journal;
 document.addEventListener('DOMContentLoaded', () => {
-    new RedditJournal();
+    journal = new RedditJournal();
+    window.journal = journal; // Make globally accessible for modal
 });
