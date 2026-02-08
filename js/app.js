@@ -53,6 +53,20 @@ class RedditJournal {
         }
     }
 
+    updateAnalyticsDisplay() {
+        const analytics = this.getAnalytics();
+        
+        const totalInteractionsEl = document.getElementById('totalInteractions');
+        const activeDaysEl = document.getElementById('activeDays');
+        
+        if (totalInteractionsEl) {
+            totalInteractionsEl.textContent = analytics.totalInteractions;
+        }
+        if (activeDaysEl) {
+            activeDaysEl.textContent = Object.keys(analytics.dailyActivity).length;
+        }
+    }
+
     showRecoveryOptions() {
         const recoveryHTML = `
             <div class="error-recovery" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--reddit-card-bg); padding: 20px; border-radius: 8px; z-index: 10000; border: 2px solid var(--reddit-orange);">
