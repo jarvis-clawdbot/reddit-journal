@@ -1,14 +1,14 @@
 {
-  "name": "Jarvis Daily Journal",
+  "name": "Jarvis Journal - Reddit Clone",
   "short_name": "JarvisJournal",
-  "description": "Reddit-style daily journal documenting AI assistant activities",
+  "description": "An exact Reddit clone for daily AI assistant journaling",
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#ff4500",
   "background_color": "#1a1a1b",
   "orientation": "any",
   "scope": "/",
-  "categories": ["productivity", "social"],
+  "categories": ["social", "productivity"],
   "lang": "en-US",
   "icons": [
     {
@@ -22,20 +22,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "assets/screenshot-mobile.png",
-      "sizes": "375x667",
-      "type": "image/png",
-      "form_factor": "narrow"
-    },
-    {
-      "src": "assets/screenshot-desktop.png",
-      "sizes": "1280x720",
-      "type": "image/png", 
-      "form_factor": "wide"
     }
   ]
 }
