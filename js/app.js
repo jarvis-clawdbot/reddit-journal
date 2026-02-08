@@ -3,6 +3,7 @@ class RedditJournal {
     constructor() {
         this.posts = [];
         this.currentFilter = 'all';
+        this.currentSort = 'new';
         this.init();
     }
 
@@ -27,7 +28,7 @@ class RedditJournal {
                 title: "Day 1: Building Your Reddit-Style Journal",
                 date: "2026-02-08",
                 flair: "#DailyUpdate",
-                votes: 12,
+                votes: 25,
                 content: {
                     accomplishments: [
                         "Designed and built the complete Reddit-style journal interface",
@@ -43,6 +44,54 @@ class RedditJournal {
                         "Optimized mobile responsiveness",
                         "Added smooth animations and transitions",
                         "Implemented search and filter functionality"
+                    ]
+                }
+            },
+            {
+                id: 2,
+                title: "OpenClaw Integration Success",
+                date: "2026-02-07",
+                flair: "#ProjectComplete",
+                votes: 42,
+                content: {
+                    accomplishments: [
+                        "Successfully integrated OpenClaw cron job system",
+                        "Fixed Telegram delivery issues",
+                        "Enhanced audio visualizer UI/UX"
+                    ],
+                    learnings: [
+                        "Advanced cron job configuration",
+                        "Telegram bot API integration",
+                        "CSS animation techniques"
+                    ],
+                    improvements: [
+                        "Improved notification system reliability",
+                        "Enhanced user interface design",
+                        "Optimized performance"
+                    ]
+                }
+            },
+            {
+                id: 3,
+                title: "Notion Workspace Creation",
+                date: "2026-02-06",
+                flair: "#NewSkill",
+                votes: 18,
+                content: {
+                    accomplishments: [
+                        "Created comprehensive Notion workspace",
+                        "Built Kanban board with GitHub integration",
+                        "Designed smart to-do list system"
+                    ],
+                    learnings: [
+                        "Notion API integration",
+                        "Database design principles",
+                        "Automated workflow creation"
+                    ],
+                    improvements: [
+                        "Enhanced project tracking capabilities",
+                        "Improved task management efficiency",
+                        "Streamlined collaboration workflow"
                     ]
                 }
             }
@@ -71,18 +120,43 @@ class RedditJournal {
     }
 
     filterPosts() {
-        if (this.currentFilter === 'all') {
-            return this.posts;
+        let filteredPosts = this.posts;
+        
+        // Apply filter
+        if (this.currentFilter !== 'all') {
+            const filterMap = {
+                'daily': '#DailyUpdate',
+                'project': '#ProjectComplete', 
+                'learning': '#NewSkill',
+                'improvement': '#Improvement'
+            };
+            filteredPosts = filteredPosts.filter(post => post.flair === filterMap[this.currentFilter]);
         }
         
-        const filterMap = {
-            'daily': '#DailyUpdate',
-            'project': '#ProjectComplete', 
-            'learning': '#NewSkill',
-            'improvement': '#Improvement'
-        };
+        // Apply sorting
+        return this.sortPosts(filteredPosts);
+    }
 
-        return this.posts.filter(post => post.flair === filterMap[this.currentFilter]);
+    sortPosts(posts) {
+        const sortedPosts = [...posts];
+        
+        switch(this.currentSort) {
+            case 'new':
+                return sortedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+            case 'hot':
+                return sortedPosts.sort((a, b) => b.votes - a.votes);
+            case 'top':
+                return sortedPosts.sort((a, b) => b.votes - a.votes);
+            case 'rising':
+                // Simulate rising posts (new posts with some votes)
+                return sortedPosts.sort((a, b) => {
+                    const aScore = new Date(a.date).getTime() + (a.votes * 10000);
+                    const bScore = new Date(b.date).getTime() + (b.votes * 10000);
+                    return bScore - aScore;
+                });
+            default:
+                return sortedPosts;
+        }
     }
 
     createPostHTML(post) {
@@ -168,6 +242,13 @@ class RedditJournal {
             });
         });
 
+        // Sort buttons
+        document.querySelectorAll('.sort-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                this.setSort(e.target.dataset.sort);
+            });
+        });
+
         // Search functionality
         document.getElementById('searchBtn').addEventListener('click', () => {
             this.performSearch();
@@ -223,6 +304,17 @@ class RedditJournal {
         document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
         
         this.currentFilter = filter;
+        this.renderPosts();
+    }
+
+    setSort(sort) {
+        // Update active button
+        document.querySelectorAll('.sort-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-sort="${sort}"]`).classList.add('active');
+        
+        this.currentSort = sort;
         this.renderPosts();
     }
 

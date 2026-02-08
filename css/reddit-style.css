@@ -221,6 +221,44 @@ body.light-mode .filter-btn:hover {
     background-color: rgba(0, 0, 0, 0.1);
 }
 
+.sort-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sort-btn {
+    background: none;
+    border: none;
+    color: var(--reddit-dark-text);
+    padding: 8px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.3s;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.sort-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sort-btn.active {
+    background-color: var(--reddit-blue);
+    color: white;
+}
+
+body.light-mode .sort-btn {
+    color: var(--reddit-light-text);
+}
+
+body.light-mode .sort-btn:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
 .stats {
     display: flex;
     gap: 15px;
