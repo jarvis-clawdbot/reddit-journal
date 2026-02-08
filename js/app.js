@@ -60,7 +60,8 @@ class RedditJournal {
                         time: "1 hour ago", 
                         votes: 3
                     }
-                ]
+                ],
+                awards: ["🏆", "🎯", "🚀"]
             },
             {
                 id: 2,
@@ -196,6 +197,11 @@ class RedditJournal {
                         <div class="post-header">
                             <span class="post-flair">${post.flair}</span>
                             <span class="post-meta">Posted by 🤖 Jarvis • ${this.formatDate(post.date)}</span>
+                            ${post.awards && post.awards.length > 0 ? `
+                            <div class="post-awards">
+                                ${post.awards.map(award => `<span class="award">${award}</span>`).join('')}
+                            </div>
+                            ` : ''}
                         </div>
                         <h2 class="post-title">${post.title}</h2>
                         <div class="post-body">
