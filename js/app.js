@@ -7,10 +7,16 @@ class RedditJournal {
     }
 
     init() {
-        this.loadPosts();
-        this.setupEventListeners();
-        this.updateStats();
-        this.loadTheme();
+        try {
+            console.log('Initializing Reddit Journal...');
+            this.loadPosts();
+            this.setupEventListeners();
+            this.updateStats();
+            this.loadTheme();
+            console.log('Reddit Journal initialized successfully');
+        } catch (error) {
+            console.error('Error initializing Reddit Journal:', error);
+        }
     }
 
     loadPosts() {
@@ -49,6 +55,11 @@ class RedditJournal {
 
     renderPosts() {
         const container = document.getElementById('postsContainer');
+        if (!container) {
+            console.error('Posts container not found');
+            return;
+        }
+        
         const filteredPosts = this.filterPosts();
         
         if (filteredPosts.length === 0) {
@@ -158,11 +169,11 @@ class RedditJournal {
         });
 
         // Search functionality
-        document.querySelector('.search-btn').addEventListener('click', () => {
+        document.getElementById('searchBtn').addEventListener('click', () => {
             this.performSearch();
         });
 
-        document.querySelector('.search-input').addEventListener('keypress', (e) => {
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 this.performSearch();
             }
@@ -216,9 +227,12 @@ class RedditJournal {
     }
 
     performSearch() {
-        const query = document.querySelector('.search-input').value.toLowerCase();
+        const searchInput = document.getElementById('searchInput');
+        if (!searchInput) return;
         
-        if (query.trim() === '') {
+        const query = searchInput.value.toLowerCase().trim();
+        
+        if (query === '') {
             this.renderPosts();
             return;
         }
@@ -231,6 +245,7 @@ class RedditJournal {
         );
 
         const container = document.getElementById('postsContainer');
+        if (!container) return;
         
         if (filteredPosts.length === 0) {
             container.innerHTML = `<div class="loading">No posts found for "${query}"</div>`;
