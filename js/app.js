@@ -27,25 +27,25 @@ class RedditJournal {
 
             // Run tests
             this.runTests();
-            
+
             // Setup keyboard shortcuts
             this.setupKeyboardShortcuts();
-            
+
             // Setup infinite scroll
             this.setupInfiniteScroll();
-            
+
             // Setup post creation
             this.setupPostCreation();
-            
+
             // Setup drag and drop
             this.setupDragAndDrop();
-            
+
             // Update analytics display
             this.updateAnalyticsDisplay();
-            
+
             // Setup performance monitoring
             this.setupPerformanceMonitoring();
-            
+
         } catch (error) {
             console.error('❌ Error initializing Reddit Journal:', error);
             this.showError('Initialization failed: ' + error.message);
@@ -147,6 +147,13 @@ class RedditJournal {
                         e.preventDefault();
                         this.toggleTheme();
                         console.log('🌙 Theme toggled via keyboard shortcut');
+                    }
+                    break;
+                case 'p':
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        this.toggleParticles();
+                        console.log('✨ Particles toggled via keyboard shortcut');
                     }
                     break;
                 case '/':
@@ -1058,22 +1065,22 @@ class RedditJournal {
                     });
                 });
             });
-            
+
             observer.observe({entryTypes: ['paint', 'largest-contentful-paint', 'first-input']});
         }
-        
+
         // Monitor resource loading
         window.addEventListener('load', () => {
             const navigationTiming = performance.getEntriesByType('navigation')[0];
             const resources = performance.getEntriesByType('resource');
-            
+
             this.trackUserInteraction('page_load', {
                 domContentLoaded: navigationTiming.domContentLoadedEventEnd,
                 loadTime: navigationTiming.loadEventEnd,
                 resourcesLoaded: resources.length
             });
         });
-        
+
         if (this.debugMode) console.log('📊 Performance monitoring enabled');
     }
 
@@ -1084,9 +1091,9 @@ class RedditJournal {
             totalPosts: this.posts.length,
             posts: this.posts
         };
-        
+
         let content, mimeType, filename;
-        
+
         switch(format) {
             case 'json':
                 content = JSON.stringify(exportData, null, 2);
@@ -1103,7 +1110,7 @@ class RedditJournal {
                 mimeType = 'application/json';
                 filename = `export-${new Date().toISOString().split('T')[0]}.json`;
         }
-        
+
         const blob = new Blob([content], { type: mimeType });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -1111,19 +1118,39 @@ class RedditJournal {
         a.download = filename;
         a.click();
         URL.revokeObjectURL(url);
-        
+
         this.trackUserInteraction('export', { format, postCount: this.posts.length });
+    }
+
+    toggleParticles() {
+        const toggleBtn = document.getElementById('particleToggle');
+        if (!window.particleSystem) {
+            console.warn('Particle system not available');
+            return;
+        }
+        
+        if (window.particleSystem.isActive) {
+            window.particleSystem.stop();
+            if (toggleBtn) toggleBtn.style.opacity = '0.5';
+            localStorage.setItem('particlesEnabled', 'false');
+            console.log('✨ Particles disabled');
+        } else {
+            window.particleSystem.init();
+            if (toggleBtn) toggleBtn.style.opacity = '1';
+            localStorage.setItem('particlesEnabled', 'true');
+            console.log('✨ Particles enabled');
+        }
     }
 
     convertToMarkdown(data) {
         let markdown = `# Reddit Journal Export\n`;
         markdown += `**Exported:** ${data.exportedAt}\n`;
         markdown += `**Total Posts:** ${data.totalPosts}\n\n`;
-        
+
         data.posts.forEach(post => {
             markdown += `## ${post.title}\n`;
             markdown += `**Date:** ${post.date} | **Flair:** ${post.flair} | **Votes:** ${post.votes}\n\n`;
-            
+
             if (post.content.accomplishments.length > 0) {
                 markdown += `### Accomplishments\n`;
                 post.content.accomplishments.forEach(acc => {
@@ -1131,7 +1158,7 @@ class RedditJournal {
                 });
                 markdown += `\n`;
             }
-            
+
             if (post.content.learnings.length > 0) {
                 markdown += `### Learnings\n`;
                 post.content.learnings.forEach(learning => {
@@ -1140,17 +1167,23 @@ class RedditJournal {
                 markdown += `\n`;
             }
         });
-        
+
         return markdown;
     }
 }
 
 // Initialize the journal when DOM is loaded
 let journal;
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize WASM first
+    await window.wasmCalculator?.init();
+    
     journal = new RedditJournal();
     window.journal = journal; // Make globally accessible for modal
-
+    
+    // Initialize AI suggestions
+    await window.aiSuggestions?.refreshSuggestions();
+    
     // Register service worker for offline functionality
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js')
