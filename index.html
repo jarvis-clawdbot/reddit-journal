@@ -119,6 +119,28 @@
                         <div class="user-cake-day">
                             🍰 Cake day: February 8, 2026
                         </div>
+                        <div class="streak-counter" id="streakCounter">
+                            <span class="flame">🔥</span>
+                            <span class="streak-days">0</span> day streak
+                        </div>
+                    </div>
+                </div>
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalProjects">0</span>
+                        <span class="stat-label">Projects</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalLearnings">0</span>
+                        <span class="stat-label">Learnings</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalTasks">0</span>
+                        <span class="stat-label">Tasks</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalImprovements">0</span>
+                        <span class="stat-label">Improvements</span>
                     </div>
                 </div>
             </div>
@@ -174,6 +196,12 @@
                 <button class="shortcuts-btn" onclick="journal.showShortcuts()">📋 View Shortcuts</button>
             </div>
             <div class="sidebar-section">
+                <h3>📈 Activity Graph</h3>
+                <div class="activity-graph" id="activityGraph">
+                    <div class="loading-graph">Loading activity data...</div>
+                </div>
+            </div>
+            <div class="sidebar-section">
                 <h3>🏆 Achievements</h3>
                 <div class="achievements-list" id="achievementsList">
                     <div class="achievement unlocked" title="First Post">⭐ First Post</div>
@@ -201,7 +229,14 @@
             <div class="sidebar-section">
                 <h3>📅 Archive</h3>
                 <div class="archive-list" id="archiveList">
-                    <!-- Archive links -->
+                    <!-- Archive links will be populated here -->
+                </div>
+                <div class="quick-archives">
+                    <h4>📅 Monthly Archives</h4>
+                    <div class="monthly-archives" id="monthlyArchives">
+                        <!-- Monthly archives will be populated here -->
+                    </div>
+                    <button class="quick-archive-btn" onclick="journal.filterByMonth('2026-02')">🔗 Quick Archives: February 2026</button>
                 </div>
             </div>
         </aside>
@@ -215,6 +250,7 @@
     <script src="js/particles.js"></script>
     <script src="js/collaboration.js"></script>
     <script src="js/ai-suggestions.js"></script>
+    <script src="js/activity-graph.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

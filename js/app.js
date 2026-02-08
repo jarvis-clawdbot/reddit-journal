@@ -24,6 +24,7 @@ class RedditJournal {
             this.setupEventListeners();
             this.updateStats();
             this.loadTheme();
+            this.updateMonthlyArchives();
 
             if (this.debugMode) console.log('✅ Reddit Journal initialized successfully');
 
@@ -813,6 +814,11 @@ class RedditJournal {
                         <div class="post-actions">
                             <button class="action-btn comment-btn">💬 ${post.comments || 0} Comments</button>
                             <button class="action-btn share-btn">↗️ Share</button>
+                            <div class="share-dropdown" id="shareDropdown-${post.id}">
+                                <button class="share-option twitter-share" onclick="journal.shareToTwitter(${post.id})">🐦 Twitter</button>
+                                <button class="share-option linkedin-share" onclick="journal.shareToLinkedIn(${post.id})">💼 LinkedIn</button>
+                                <button class="share-option copy-link" onclick="journal.copyPostLink(${post.id})">📋 Copy Link</button>
+                            </div>
                             <button class="action-btn save-btn">📌 Save</button>
                             <button class="action-btn crosspost-btn">🔄 Crosspost</button>
                         </div>
@@ -874,6 +880,68 @@ class RedditJournal {
     updateStats() {
         document.getElementById('totalPosts').textContent = this.posts.length;
         document.getElementById('daysActive').textContent = Math.ceil(this.posts.length / 1);
+        
+        // Update streak counter
+        this.updateStreakCounter();
+        
+        // Update stats grid
+        this.updateStatsGrid();
+    }
+
+    updateStreakCounter() {
+        const streakEl = document.getElementById('streakCounter');
+        if (!streakEl) return;
+        
+        const streakDays = this.calculateCurrentStreak();
+        const flame = streakDays > 0 ? '🔥' : '❄️';
+        
+        streakEl.innerHTML = `
+            <span class="flame">${flame}</span>
+            <span class="streak-days">${streakDays}</span> day streak
+        `;
+        
+        // Add animation for active streak
+        if (streakDays > 0) {
+            streakEl.classList.add('active-streak');
+        } else {
+            streakEl.classList.remove('active-streak');
+        }
+    }
+
+    calculateCurrentStreak() {
+        if (!this.posts.length) return 0;
+        
+        const today = new Date().toISOString().split('T')[0];
+        const postDates = [...new Set(this.posts.map(post => post.date))].sort().reverse();
+        
+        let streak = 0;
+        let currentDate = new Date(today);
+        
+        // Check consecutive days backwards from today
+        for (let i = 0; i < 365; i++) {
+            const checkDate = currentDate.toISOString().split('T')[0];
+            
+            if (postDates.includes(checkDate)) {
+                streak++;
+                currentDate.setDate(currentDate.getDate() - 1);
+            } else {
+                break;
+            }
+        }
+        
+        return streak;
+    }
+
+    updateStatsGrid() {
+        const projects = this.posts.filter(post => post.flair === '#ProjectComplete').length;
+        const learnings = this.posts.filter(post => post.flair === '#NewSkill').length;
+        const improvements = this.posts.filter(post => post.flair === '#Improvement').length;
+        const tasks = this.posts.filter(post => post.flair === '#DailyUpdate').length;
+        
+        document.getElementById('totalProjects').textContent = projects;
+        document.getElementById('totalLearnings').textContent = learnings;
+        document.getElementById('totalTasks').textContent = tasks;
+        document.getElementById('totalImprovements').textContent = improvements;
     }
 
     setupEventListeners() {
@@ -1251,6 +1319,119 @@ class RedditJournal {
         if (this.debugMode) console.log(`⏰ Time filter applied: ${timeRange}`);
     }
 
+    filterByMonth(monthYear) {
+        const [year, month] = monthYear.split('-');
+        
+        // Filter posts by month
+        const filteredPosts = this.posts.filter(post => {
+            const postDate = new Date(post.date);
+            return postDate.getFullYear() === parseInt(year) && 
+                   postDate.getMonth() + 1 === parseInt(month);
+        });
+        
+        this.renderFilteredPosts(filteredPosts, `Posts from ${this.getMonthName(month)} ${year}`);
+        
+        if (this.debugMode) console.log(`📅 Month filter applied: ${monthYear}`);
+    }
+
+    shareToTwitter(postId) {
+        const post = this.posts.find(p => p.id === postId);
+        if (!post) return;
+        
+        const text = encodeURIComponent(`Check out this post: "${post.title}"`);
+        const url = encodeURIComponent(window.location.href + `#post-${postId}`);
+        const twitterUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
+        
+        window.open(twitterUrl, '_blank', 'width=600,height=400');
+        
+        this.trackUserInteraction('share_twitter', { postId });
+    }
+
+    shareToLinkedIn(postId) {
+        const post = this.posts.find(p => p.id === postId);
+        if (!post) return;
+        
+        const url = encodeURIComponent(window.location.href + `#post-${postId}`);
+        const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+        
+        window.open(linkedinUrl, '_blank', 'width=600,height=400');
+        
+        this.trackUserInteraction('share_linkedin', { postId });
+    }
+
+    copyPostLink(postId) {
+        const postLink = window.location.href + `#post-${postId}`;
+        
+        navigator.clipboard.writeText(postLink).then(() => {
+            alert('Post link copied to clipboard!');
+        }).catch(() => {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = postLink;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('Post link copied to clipboard!');
+        });
+        
+        this.trackUserInteraction('copy_link', { postId });
+    }
+
+    getMonthName(month) {
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+        return months[parseInt(month) - 1];
+    }
+
+    renderFilteredPosts(posts, title) {
+        const container = document.getElementById('postsContainer');
+        if (!container) return;
+        
+        if (posts.length === 0) {
+            container.innerHTML = `<div class="loading">${title} - No posts found</div>`;
+        } else {
+            container.innerHTML = `
+                <div class="filter-header">
+                    <h3>${title}</h3>
+                    <span class="post-count">${posts.length} posts</span>
+                </div>
+                ${posts.map(post => this.createPostHTML(post)).join('')}
+            `;
+        }
+    }
+
+    updateMonthlyArchives() {
+        const container = document.getElementById('monthlyArchives');
+        if (!container) return;
+        
+        // Get unique months from posts
+        const months = [...new Set(this.posts.map(post => {
+            const date = new Date(post.date);
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        }))].sort().reverse();
+        
+        const archivesHTML = months.map(month => {
+            const [year, monthNum] = month.split('-');
+            const monthName = this.getMonthName(monthNum);
+            const postCount = this.posts.filter(post => {
+                const postDate = new Date(post.date);
+                return `${postDate.getFullYear()}-${String(postDate.getMonth() + 1).padStart(2, '0')}` === month;
+            }).length;
+            
+            return `
+                <div class="month-archive">
+                    <button class="archive-btn" onclick="journal.filterByMonth('${month}')">
+                        <span class="archive-month">${monthName} ${year}</span>
+                        <span class="archive-count">${postCount} posts</span>
+                    </button>
+                </div>
+            `;
+        }).join('');
+        
+        container.innerHTML = archivesHTML || '<div class="no-archives">No monthly archives yet</div>';
+    }
+
     showShortcuts() {
         const modalHTML = `
             <div class="modal-overlay" id="shortcutsModal">
@@ -1355,6 +1536,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Initialize AI suggestions
     await window.aiSuggestions?.refreshSuggestions();
+    
+    // Initialize activity graph
+    await window.activityGraph?.init();
     
     // Register service worker for offline functionality
     if ('serviceWorker' in navigator) {
