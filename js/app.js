@@ -17,6 +17,9 @@ class RedditJournal {
             // Check if required elements exist
             this.checkRequiredElements();
 
+            // Detect mobile and apply optimizations
+            this.detectMobileAndOptimize();
+
             this.loadPosts();
             this.setupEventListeners();
             this.updateStats();
@@ -52,6 +55,24 @@ class RedditJournal {
             console.error('❌ Error initializing Reddit Journal:', error);
             this.showError('Initialization failed: ' + error.message);
             this.showRecoveryOptions();
+        }
+    }
+
+    detectMobileAndOptimize() {
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        
+        if (isMobile || isTouchDevice) {
+            // Disable particles on mobile for performance
+            localStorage.setItem('particlesEnabled', 'false');
+            
+            // Disable drag and drop on touch devices
+            this.disableDragAndDrop = true;
+            
+            // Optimize for touch
+            document.body.classList.add('touch-device');
+            
+            if (this.debugMode) console.log('📱 Mobile/touch device detected, applying optimizations');
         }
     }
 
@@ -343,6 +364,11 @@ class RedditJournal {
     }
 
     setupDragAndDrop() {
+        if (this.disableDragAndDrop) {
+            if (this.debugMode) console.log('📱 Drag and drop disabled for mobile/touch devices');
+            return;
+        }
+
         const container = document.getElementById('postsContainer');
         if (!container) return;
 

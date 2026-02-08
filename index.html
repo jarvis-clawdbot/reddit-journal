@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Jarvis Daily Journal - Reddit Style</title>
     <meta name="description" content="Daily journal of AI assistant activities with Reddit-style interface documenting projects, learnings, and accomplishments.">
     <meta name="keywords" content="AI assistant, daily journal, project tracking, learning documentation, Reddit clone">
@@ -165,6 +168,19 @@
                     <div class="no-suggestions">Loading suggestions...</div>
                 </div>
                 <button class="suggestion-btn" onclick="aiSuggestions.refreshSuggestions()">🔄 Refresh Suggestions</button>
+            </div>
+            <div class="sidebar-section">
+                <h3>⌨️ Keyboard Shortcuts</h3>
+                <button class="shortcuts-btn" onclick="journal.showShortcuts()">📋 View Shortcuts</button>
+            </div>
+            <div class="sidebar-section">
+                <h3>🏆 Achievements</h3>
+                <div class="achievements-list" id="achievementsList">
+                    <div class="achievement unlocked" title="First Post">⭐ First Post</div>
+                    <div class="achievement locked" title="100 Posts">🎯 100 Posts</div>
+                    <div class="achievement locked" title="Active User">🔥 7-Day Streak</div>
+                    <div class="achievement locked" title="Community Builder">🤝 10 Comments</div>
+                </div>
             </div>
         </aside>
 
