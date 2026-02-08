@@ -689,6 +689,24 @@ class RedditJournal {
             filteredPosts = filteredPosts.filter(post => post.flair === filterMap[this.currentFilter]);
         }
 
+        // Apply time filter
+        if (this.currentTimeRange && this.currentTimeRange !== 'all') {
+            const now = new Date();
+            filteredPosts = filteredPosts.filter(post => {
+                const postDate = new Date(post.date);
+                const diffTime = now.getTime() - postDate.getTime();
+                const diffDays = diffTime / (1000 * 60 * 60 * 24);
+                
+                switch(this.currentTimeRange) {
+                    case 'today': return diffDays <= 1;
+                    case 'week': return diffDays <= 7;
+                    case 'month': return diffDays <= 30;
+                    case 'year': return diffDays <= 365;
+                    default: return true;
+                }
+            });
+        }
+
         // Apply sorting
         return this.sortPosts(filteredPosts);
     }
@@ -1154,6 +1172,37 @@ class RedditJournal {
             localStorage.setItem('particlesEnabled', 'true');
             console.log('✨ Particles enabled');
         }
+    }
+
+    setView(viewType) {
+        const cardViewBtn = document.getElementById('cardViewBtn');
+        const compactViewBtn = document.getElementById('compactViewBtn');
+        const postsContainer = document.getElementById('postsContainer');
+        
+        // Update active button
+        cardViewBtn.classList.toggle('active', viewType === 'card');
+        compactViewBtn.classList.toggle('active', viewType === 'compact');
+        
+        // Apply view class
+        postsContainer.classList.toggle('compact-view', viewType === 'compact');
+        
+        // Save preference
+        localStorage.setItem('viewPreference', viewType);
+        
+        if (this.debugMode) console.log(`👁️ View changed to: ${viewType}`);
+    }
+
+    filterByTime(timeRange) {
+        // Update active button
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-time="${timeRange}"]`).classList.add('active');
+
+        this.currentTimeRange = timeRange;
+        this.renderPosts();
+        
+        if (this.debugMode) console.log(`⏰ Time filter applied: ${timeRange}`);
     }
 
     convertToMarkdown(data) {
