@@ -5,6 +5,8 @@ class RedditJournal {
         this.currentFilter = 'all';
         this.currentSort = 'new';
         this.debugMode = true; // Enable debug mode
+        this.searchTimeout = null;
+        this.currentTimeRange = 'all';
         this.init();
     }
 
@@ -82,7 +84,7 @@ class RedditJournal {
     }
 
     checkRequiredElements() {
-        const required = ['postsContainer', 'themeToggle', 'searchInput', 'searchBtn'];
+        const required = ['postsContainer', 'themeToggle', 'searchInput'];
         const missing = [];
 
         required.forEach(id => {
@@ -174,6 +176,13 @@ class RedditJournal {
                     e.preventDefault();
                     document.getElementById('searchInput').focus();
                     console.log('🔍 Search focused via keyboard shortcut');
+                    break;
+                case 'k':
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        document.getElementById('searchInput').focus();
+                        console.log('⌨️ Search focused via Cmd+K');
+                    }
                     break;
                 case 'Escape':
                     document.getElementById('searchInput').blur();
@@ -860,8 +869,12 @@ class RedditJournal {
         });
 
         // Search functionality
-        document.getElementById('searchBtn').addEventListener('click', () => {
-            this.performSearch();
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            // Debounced search
+            clearTimeout(this.searchTimeout);
+            this.searchTimeout = setTimeout(() => {
+                this.performSearch();
+            }, 300);
         });
 
         document.getElementById('searchInput').addEventListener('keypress', (e) => {
@@ -1203,6 +1216,69 @@ class RedditJournal {
         this.renderPosts();
         
         if (this.debugMode) console.log(`⏰ Time filter applied: ${timeRange}`);
+    }
+
+    showShortcuts() {
+        const modalHTML = `
+            <div class="modal-overlay" id="shortcutsModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>⌨️ Keyboard Shortcuts</h3>
+                        <button class="modal-close" onclick="journal.closeModal()">✕</button>
+                    </div>
+                    <div class="shortcuts-content">
+                        <div class="shortcut-item">
+                            <kbd>Ctrl+T</kbd>
+                            <span>Toggle theme</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Ctrl+P</kbd>
+                            <span>Toggle particles</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>/</kbd>
+                            <span>Focus search</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Ctrl+K</kbd>
+                            <span>Focus search</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Ctrl+1</kbd>
+                            <span>Show all posts</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Ctrl+2</kbd>
+                            <span>Sort by new</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Escape</kbd>
+                            <span>Clear search</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>J</kbd>
+                            <span>Next post</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>K</kbd>
+                            <span>Previous post</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>S</kbd>
+                            <span>Save post</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        document.getElementById('shortcutsModal').addEventListener('click', (e) => {
+            if (e.target.id === 'shortcutsModal') {
+                this.closeModal();
+            }
+        });
     }
 
     convertToMarkdown(data) {
