@@ -117,6 +117,23 @@ class RedditClone {
         const searchInput = document.getElementById('searchInput');
         const searchBtn = document.getElementById('searchBtn');
         
+        // Post creation buttons
+        document.querySelectorAll('.creation-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                alert('Post creation feature would open a modal in a real implementation');
+                console.log('📝 Post creation button clicked');
+            });
+        });
+        
+        // Header buttons
+        document.querySelectorAll('.header-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const action = e.target.textContent;
+                alert(`${action} feature would open in a real implementation`);
+                console.log(`🔔 Header button clicked: ${action}`);
+            });
+        });
+        
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {
                 this.handleSearch(e.target.value);
@@ -298,16 +315,16 @@ class RedditClone {
                         <span class="vote-count">${post.votes}</span>
                         <button class="vote-btn downvote" data-post-id="${post.id}">⬇️</button>
                     </div>
-                    <button class="post-action comment-action">
+                    <button class="post-action comment-action" onclick="reddit.showComments(${post.id})">
                         💬 ${post.comments} Comments
                     </button>
                     <button class="post-action share-action" onclick="reddit.sharePost(${post.id})">
                         ↗️ Share
                     </button>
-                    <button class="post-action save-action">
+                    <button class="post-action save-action" onclick="reddit.savePost(${post.id})">
                         📌 Save
                     </button>
-                    <button class="post-action award-action">
+                    <button class="post-action award-action" onclick="reddit.giveAward(${post.id})">
                         🏆 Give Award
                     </button>
                 </div>
@@ -583,6 +600,205 @@ class RedditClone {
         return months[parseInt(month) - 1];
     }
 
+    showComments(postId) {
+        const post = this.posts.find(p => p.id === postId);
+        if (!post) return;
+        
+        const modalHTML = `
+            <div class="modal-overlay">
+                <div class="modal-content comments-modal">
+                    <div class="modal-header">
+                        <h3>💬 Comments for "${post.title}"</h3>
+                        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button>
+                    </div>
+                    <div class="comments-section">
+                        <div class="comment-input-section">
+                            <textarea placeholder="Add a comment..." class="comment-input"></textarea>
+                            <button class="comment-submit-btn">Comment</button>
+                        </div>
+                        <div class="comments-list">
+                            <div class="comment">
+                                <div class="comment-header">
+                                    <span class="comment-author">u/testuser</span>
+                                    <span class="comment-time">2 hours ago</span>
+                                </div>
+                                <div class="comment-body">
+                                    Great post! This looks amazing.
+                                </div>
+                            </div>
+                            <div class="comment">
+                                <div class="comment-header">
+                                    <span class="comment-author">u/anotheruser</span>
+                                    <span class="comment-time">1 hour ago</span>
+                                </div>
+                                <div class="comment-body">
+                                    I love the Reddit-style design!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        // Add comment submission functionality
+        const submitBtn = document.querySelector('.comment-submit-btn');
+        const commentInput = document.querySelector('.comment-input');
+        
+        if (submitBtn && commentInput) {
+            submitBtn.addEventListener('click', () => {
+                if (commentInput.value.trim()) {
+                    alert('Comment submitted!');
+                    commentInput.value = '';
+                }
+            });
+        }
+        
+        console.log(`💬 Comments opened for post ${postId}`);
+    }
+
+    savePost(postId) {
+        const post = this.posts.find(p => p.id === postId);
+        if (!post) return;
+        
+        alert(`Post "${post.title}" saved to your collection!`);
+        console.log(`📌 Post saved: ${post.title}`);
+    }
+
+    giveAward(postId) {
+        const post = this.posts.find(p => p.id === postId);
+        if (!post) return;
+        
+        const awards = ['🏆', '🎯', '🌟', '🔥', '⭐', '💎'];
+        const randomAward = awards[Math.floor(Math.random() * awards.length)];
+        
+        alert(`You gave ${randomAward} award to "${post.title}"!`);
+        console.log(`🏆 Award given: ${randomAward} to post ${postId}`);
+    }
+
+    navigateTo(destination) {
+        // Update active nav link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        
+        const activeLink = document.querySelector(`.nav-link[onclick*="${destination}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active');
+        }
+        
+        // Simulate navigation
+        alert(`Navigating to ${destination} section`);
+        console.log(`🧭 Navigation: ${destination}`);
+    }
+
+    showHelp() {
+        alert('Help documentation would open here');
+        console.log('❓ Help clicked');
+    }
+
+    showCoins() {
+        alert('Reddit Coins purchase interface would open here');
+        console.log('💰 Reddit Coins clicked');
+    }
+
+    showPremium() {
+        alert('Reddit Premium subscription interface would open here');
+        console.log('⭐ Reddit Premium clicked');
+    }
+
+    showAbout() {
+        alert('About Reddit information would display here');
+        console.log('ℹ️ About clicked');
+    }
+
+    showCareers() {
+        alert('Careers page would open here');
+        console.log('👔 Careers clicked');
+    }
+
+    showAdvertise() {
+        alert('Advertising information would display here');
+        console.log('📢 Advertise clicked');
+    }
+
+    navigateToCommunity(community) {
+        alert(`Navigating to r/${community}`);
+        console.log(`🏘️ Community navigation: r/${community}`);
+    }
+
+    toggleJoin() {
+        alert('Join/Leave functionality would toggle here');
+        console.log('🤝 Join/Leave toggled');
+    }
+
+    showPremiumModal() {
+        alert('Reddit Premium subscription modal would open here');
+        console.log('⭐ Premium modal opened');
+    }
+
+    selectCommunity(community) {
+        // Update active state
+        document.querySelectorAll('.community-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        const activeItem = document.querySelector(`.community-item[onclick*="${community}"]`);
+        if (activeItem) {
+            activeItem.classList.add('active');
+        }
+        
+        alert(`Selected community: r/${community}`);
+        console.log(`🏘️ Community selected: r/${community}`);
+    }
+
+    showUserMenu() {
+        alert('User menu with profile, settings, logout would open here');
+        console.log('👤 User menu opened');
+    }
+
+    showPostCreation() {
+        const modalHTML = `
+            <div class="modal-overlay">
+                <div class="modal-content post-creation-modal">
+                    <div class="modal-header">
+                        <h3>📝 Create Post</h3>
+                        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button>
+                    </div>
+                    <div class="post-creation-form">
+                        <input type="text" placeholder="Title" class="post-title-input">
+                        <textarea placeholder="Post content" class="post-content-input"></textarea>
+                        <select class="post-flair-select">
+                            <option value="#ProjectComplete">📊 Project Complete</option>
+                            <option value="#NewSkill">🧠 New Skill</option>
+                            <option value="#Improvement">🚀 Improvement</option>
+                            <option value="#DailyUpdate">📋 Daily Update</option>
+                        </select>
+                        <button class="post-submit-btn">Post</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        const submitBtn = document.querySelector('.post-submit-btn');
+        const titleInput = document.querySelector('.post-title-input');
+        
+        if (submitBtn && titleInput) {
+            submitBtn.addEventListener('click', () => {
+                if (titleInput.value.trim()) {
+                    alert('Post created successfully!');
+                    document.querySelector('.modal-overlay').remove();
+                }
+            });
+        }
+        
+        console.log('📝 Post creation modal opened');
+    }
+
     setupInfiniteScroll() {
         window.addEventListener('scroll', () => {
             const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
@@ -617,8 +833,44 @@ class RedditClone {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    window.reddit = new RedditClone();
+    console.log('🏗️ DOM loaded, initializing Reddit Clone...');
+    
+    try {
+        window.reddit = new RedditClone();
+        console.log('✅ Reddit Clone initialized successfully');
+    } catch (error) {
+        console.error('❌ Error initializing Reddit Clone:', error);
+        
+        // Fallback: Show error message
+        const container = document.getElementById('postsContainer');
+        if (container) {
+            container.innerHTML = `
+                <div class="error-message">
+                    <h3>⚠️ JavaScript Error</h3>
+                    <p>Unable to load Reddit functionality. Please refresh the page.</p>
+                    <p><small>Error: ${error.message}</small></p>
+                </div>
+            `;
+        }
+    }
 });
+
+// Add CSS for error message
+const errorCSS = `
+.error-message {
+    text-align: center;
+    padding: 48px 16px;
+    color: #ff6b6b;
+}
+.error-message h3 {
+    margin-bottom: 16px;
+}
+`;
+
+// Inject error CSS
+const errorStyle = document.createElement('style');
+errorStyle.textContent = errorCSS;
+document.head.appendChild(errorStyle);
 
 // Add CSS for modal
 const modalCSS = `

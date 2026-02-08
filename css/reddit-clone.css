@@ -722,6 +722,143 @@ body {
     margin-top: 2px;
 }
 
+/* Comments Modal */
+.comments-modal {
+    max-width: 600px;
+    max-height: 80vh;
+}
+
+.comments-section {
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+}
+
+.comment-input-section {
+    padding: 16px;
+    border-bottom: 1px solid #343536;
+}
+
+.comment-input {
+    width: 100%;
+    min-height: 80px;
+    background: #272729;
+    border: 1px solid #343536;
+    border-radius: 8px;
+    padding: 12px;
+    color: #d7dadc;
+    font-size: 14px;
+    resize: vertical;
+    margin-bottom: 8px;
+}
+
+.comment-input::placeholder {
+    color: #818384;
+}
+
+.comment-submit-btn {
+    background: #ff4500;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.comment-submit-btn:hover {
+    background: #ff5714;
+}
+
+.comments-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.comment {
+    padding: 12px 0;
+    border-bottom: 1px solid #343536;
+}
+
+.comment:last-child {
+    border-bottom: none;
+}
+
+.comment-header {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.comment-author {
+    font-size: 12px;
+    font-weight: 700;
+    color: #d7dadc;
+}
+
+.comment-time {
+    font-size: 12px;
+    color: #818384;
+}
+
+.comment-body {
+    font-size: 14px;
+    color: #d7dadc;
+    line-height: 1.4;
+}
+
+/* Post Creation Modal */
+.post-creation-modal {
+    max-width: 500px;
+}
+
+.post-creation-form {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.post-title-input,
+.post-content-input,
+.post-flair-select {
+    background: #272729;
+    border: 1px solid #343536;
+    border-radius: 8px;
+    padding: 12px;
+    color: #d7dadc;
+    font-size: 14px;
+    outline: none;
+}
+
+.post-title-input::placeholder,
+.post-content-input::placeholder {
+    color: #818384;
+}
+
+.post-content-input {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.post-submit-btn {
+    background: #ff4500;
+    border: none;
+    border-radius: 20px;
+    padding: 12px 24px;
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+}
+
+.post-submit-btn:hover {
+    background: #ff5714;
+}
+
 /* Trophies System */
 .trophies-grid {
     display: grid;
