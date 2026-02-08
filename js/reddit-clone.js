@@ -106,6 +106,13 @@ class RedditClone {
             });
         });
 
+        // Time filter buttons
+        document.querySelectorAll('.time-filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                this.setTimeFilter(e.target.dataset.time);
+            });
+        });
+
         // Search functionality
         const searchInput = document.getElementById('searchInput');
         const searchBtn = document.getElementById('searchBtn');
@@ -175,6 +182,41 @@ class RedditClone {
         console.log(`🎛️ Filter changed to: ${filterType}`);
     }
 
+    setTimeFilter(timeType) {
+        // Update active state
+        document.querySelectorAll('.time-filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`.time-filter-btn[data-time="${timeType}"]`).classList.add('active');
+        
+        this.currentTimeFilter = timeType;
+        this.renderPosts();
+        
+        console.log(`⏰ Time filter changed to: ${timeType}`);
+    }
+
+    filterPostsByTime(posts, timeRange) {
+        const now = new Date();
+        
+        return posts.filter(post => {
+            // Simulate time-based filtering (in real implementation, posts would have actual dates)
+            const postAge = post.id; // Using ID as age indicator
+            
+            switch (timeRange) {
+                case 'today':
+                    return postAge >= 1; // Recent posts
+                case 'week':
+                    return postAge <= 7;
+                case 'month':
+                    return postAge <= 30;
+                case 'year':
+                    return postAge <= 365;
+                default:
+                    return true;
+            }
+        });
+    }
+
     sortPosts() {
         switch (this.currentSort) {
             case 'hot':
@@ -205,7 +247,7 @@ class RedditClone {
         
         let filteredPosts = this.posts;
         
-        // Apply filter
+        // Apply tag filter
         if (this.currentFilter !== 'all') {
             const filterMap = {
                 'projects': '#ProjectComplete',
@@ -214,6 +256,11 @@ class RedditClone {
                 'tasks': '#DailyUpdate'
             };
             filteredPosts = filteredPosts.filter(post => post.flair === filterMap[this.currentFilter]);
+        }
+        
+        // Apply time filter
+        if (this.currentTimeFilter && this.currentTimeFilter !== 'all') {
+            filteredPosts = this.filterPostsByTime(filteredPosts, this.currentTimeFilter);
         }
 
         if (filteredPosts.length === 0) {
@@ -254,7 +301,7 @@ class RedditClone {
                     <button class="post-action comment-action">
                         💬 ${post.comments} Comments
                     </button>
-                    <button class="post-action share-action">
+                    <button class="post-action share-action" onclick="reddit.sharePost(${post.id})">
                         ↗️ Share
                     </button>
                     <button class="post-action save-action">
@@ -422,6 +469,72 @@ class RedditClone {
         document.getElementById('postCount').textContent = this.posts.length;
         document.getElementById('memberCount').textContent = '1';
         document.getElementById('onlineCount').textContent = '1';
+        
+        // Update stats grid
+        this.updateStatsGrid();
+        
+        // Update trophies
+        this.updateTrophies();
+    }
+
+    updateTrophies() {
+        const totalPosts = this.posts.length;
+        const totalComments = this.posts.reduce((sum, post) => sum + (post.comments || 0), 0);
+        
+        const trophies = [
+            {
+                id: 'first-post',
+                icon: '⭐',
+                name: 'First Post',
+                unlocked: totalPosts >= 1,
+                title: 'Create your first post'
+            },
+            {
+                id: 'hundred-posts',
+                icon: '🎯',
+                name: '100 Posts',
+                unlocked: totalPosts >= 100,
+                title: 'Reach 100 posts'
+            },
+            {
+                id: 'seven-day-streak',
+                icon: '🔥',
+                name: '7-Day Streak',
+                unlocked: false, // Would require actual date tracking
+                title: 'Maintain a 7-day posting streak'
+            },
+            {
+                id: 'community-builder',
+                icon: '🤝',
+                name: '10 Comments',
+                unlocked: totalComments >= 10,
+                title: 'Receive 10 comments on your posts'
+            }
+        ];
+        
+        const trophiesHTML = trophies.map(trophy => `
+            <div class="trophy ${trophy.unlocked ? 'unlocked' : 'locked'}" title="${trophy.title}">
+                <span class="trophy-icon">${trophy.icon}</span>
+                <span class="trophy-name">${trophy.name}</span>
+            </div>
+        `).join('');
+        
+        const trophiesContainer = document.querySelector('.trophies-grid');
+        if (trophiesContainer) {
+            trophiesContainer.innerHTML = trophiesHTML;
+        }
+    }
+
+    updateStatsGrid() {
+        const projects = this.posts.filter(post => post.flair === '#ProjectComplete').length;
+        const learnings = this.posts.filter(post => post.flair === '#NewSkill').length;
+        const improvements = this.posts.filter(post => post.flair === '#Improvement').length;
+        const tasks = this.posts.filter(post => post.flair === '#DailyUpdate').length;
+        
+        document.getElementById('totalProjects').textContent = projects;
+        document.getElementById('totalLearnings').textContent = learnings;
+        document.getElementById('totalTasks').textContent = tasks;
+        document.getElementById('totalImprovements').textContent = improvements;
     }
 
     // Reddit-specific functionality
@@ -433,6 +546,41 @@ class RedditClone {
         this.simulateLiveUpdates();
         
         console.log('🎮 Reddit features simulation enabled');
+    }
+
+    sharePost(postId) {
+        const post = this.posts.find(p => p.id === postId);
+        if (!post) return;
+        
+        const shareData = {
+            title: post.title,
+            text: post.body,
+            url: window.location.href + `#post-${postId}`
+        };
+        
+        if (navigator.share) {
+            navigator.share(shareData).catch(console.error);
+        } else {
+            // Fallback: copy to clipboard
+            navigator.clipboard.writeText(shareData.url).then(() => {
+                alert('Post link copied to clipboard!');
+            });
+        }
+        
+        console.log(`📤 Shared post: ${post.title}`);
+    }
+
+    filterByMonth(monthYear) {
+        const [year, month] = monthYear.split('-');
+        alert(`Filtering posts from ${this.getMonthName(month)} ${year}`);
+        // In a real implementation, this would filter posts by date
+        console.log(`📅 Filtering by month: ${monthYear}`);
+    }
+
+    getMonthName(month) {
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+        return months[parseInt(month) - 1];
     }
 
     setupInfiniteScroll() {
