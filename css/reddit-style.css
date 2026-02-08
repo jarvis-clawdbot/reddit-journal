@@ -524,6 +524,67 @@ body.touch-device .particle-toggle {
     display: none !important;
 }
 
+/* Reduced motion for slow connections */
+body.reduced-motion * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+}
+
+body.reduced-motion .skeleton {
+    animation: none;
+    background: var(--color-bg-tertiary);
+}
+
+body.reduced-motion .progress-bar {
+    display: none;
+}
+
+/* iOS-specific optimizations */
+@supports (-webkit-touch-callout: none) {
+    body {
+        -webkit-font-smoothing: antialiased;
+    }
+    
+    .post-card {
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    input,
+    textarea {
+        -webkit-appearance: none;
+        border-radius: 0;
+    }
+}
+
+/* Safe area insets for iPhone X+ notch support */
+@supports (padding: max(0px)) {
+    .reddit-header {
+        padding-left: max(12px, env(safe-area-inset-left));
+        padding-right: max(12px, env(safe-area-inset-right));
+        padding-top: max(8px, env(safe-area-inset-top));
+    }
+    
+    .main-container {
+        padding-left: max(20px, env(safe-area-inset-left));
+        padding-right: max(20px, env(safe-area-inset-right));
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
+    }
+    
+    @media (max-width: 768px) {
+        .main-container {
+            padding-left: max(0px, env(safe-area-inset-left));
+            padding-right: max(0px, env(safe-area-inset-right));
+        }
+        
+        .sidebar,
+        .posts-section {
+            padding-left: max(15px, env(safe-area-inset-left));
+            padding-right: max(15px, env(safe-area-inset-right));
+        }
+    }
+}
+
 /* Small Phones (320px - 480px) */
 @media (max-width: 480px) {
     .header-container {

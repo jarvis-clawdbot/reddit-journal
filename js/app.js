@@ -61,6 +61,7 @@ class RedditJournal {
     detectMobileAndOptimize() {
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        const isSlowConnection = navigator.connection && (navigator.connection.saveData || navigator.connection.effectiveType === '2g' || navigator.connection.effectiveType === 'slow-2g');
         
         if (isMobile || isTouchDevice) {
             // Disable particles on mobile for performance
@@ -71,6 +72,12 @@ class RedditJournal {
             
             // Optimize for touch
             document.body.classList.add('touch-device');
+            
+            // Reduce animation complexity on slow connections
+            if (isSlowConnection) {
+                document.body.classList.add('reduced-motion');
+                if (this.debugMode) console.log('🐌 Slow connection detected, reducing animations');
+            }
             
             if (this.debugMode) console.log('📱 Mobile/touch device detected, applying optimizations');
         }
